@@ -1,6 +1,7 @@
 package com.google.cloud.samples.campusconnect.LoginActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.appspot.campus_connect_2015.clubs.Clubs;
 import com.appspot.campus_connect_2015.clubs.model.ModelsProfileMiniForm;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.cloud.samples.campusconnect.AppConstants;
+import com.google.cloud.samples.campusconnect.MainActivity;
 import com.google.cloud.samples.campusconnect.R;
 import com.google.common.base.Strings;
 
@@ -81,11 +83,10 @@ public class GetProfileDetailsActivity extends AppCompatActivity implements View
         pmf.setBatch(str_batch);
         pmf.setBranch(str_branch);
         SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.putString(AppConstants.BATCH,pmf.getBatch());
+        edit.putString(AppConstants.BATCH, pmf.getBatch());
         edit.putString(AppConstants.BRANCH, pmf.getBranch());
         edit.commit();
-        pmf.setCollegeName(sharedPreferences.getString(AppConstants.COLLEGE_NAME, null));
-        pmf.setCollegeLocation(sharedPreferences.getString(AppConstants.COLLEGE_LOCATION, null));
+        pmf.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID,null));
         saveProfile();
     }
 
@@ -155,9 +156,13 @@ public class GetProfileDetailsActivity extends AppCompatActivity implements View
         switch (v.getId()) {
             case R.id.b_continue:
                 createProfile(v);
+                Intent intent_temp = new Intent(v.getContext(), MainActivity.class);
+                startActivity(intent_temp);
                 break;
             case R.id.tv_skip:
                 createProfile(v);
+                Intent intent_temp1 = new Intent(v.getContext(), MainActivity.class);
+                startActivity(intent_temp1);
                 break;
         }
 

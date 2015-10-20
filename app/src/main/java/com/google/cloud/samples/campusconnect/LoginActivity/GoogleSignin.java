@@ -342,7 +342,7 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                             }
                             edit.putString(AppConstants.PHONE,mpList.getPhone());
 
-
+                            edit.commit();
                             Intent intent_temp = new Intent(v.getContext(), MainActivity.class);
                             startActivity(intent_temp);
                         } else {

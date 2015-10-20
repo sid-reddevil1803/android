@@ -1,6 +1,8 @@
 package com.google.cloud.samples.campusconnect;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +22,9 @@ public class ProfilePageAdapterActivity extends
 
     private List<ProfilePage_infoActivity> GroupsJoinedList;
     int posi=0;
-
+    SharedPreferences sharedPreferences;
     ProfileInfoViewHolder holder1;
+    TextView profile_name,profile_tags,tv_branch,tv_batch_of;
     GroupsJoinedListHolder holder2;
     CharSequence GroupsJoined[]={"Rotaract Club","Football Team"};
     private static int[] GroupLogo = new int[] {
@@ -43,8 +46,13 @@ public class ProfilePageAdapterActivity extends
 
     @Override
     public void onBindViewHolder(GroupsViewHolder groupViewHolder, int i) {
-        if(getItemViewType(i)==0)
-            holder1  = (ProfileInfoViewHolder)groupViewHolder;
+        if(getItemViewType(i)==0) {
+            holder1 = (ProfileInfoViewHolder) groupViewHolder;
+
+            profile_name.setText(sharedPreferences.getString(AppConstants.PERSON_NAME,"null"));
+            tv_branch.setText(sharedPreferences.getString(AppConstants.BRANCH,"null"));
+            tv_batch_of.setText(sharedPreferences.getString(AppConstants.BATCH,"null"));
+        }
         else {
             holder2 = (GroupsJoinedListHolder) groupViewHolder;
             holder2.group_joined.setText(GroupsJoined[i-1]);
@@ -65,16 +73,20 @@ public class ProfilePageAdapterActivity extends
     @Override
     public GroupsViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         GroupsViewHolder holder;
+
         if(i==0)
         {
             View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(
                     R.layout.activity_card_layout_profile_info, viewGroup, false);
+
+            sharedPreferences = itemView.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
             holder = new ProfileInfoViewHolder(itemView);
         }
         else
         {
             View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(
                     R.layout.activity_card_layout_groups_joined, viewGroup, false);
+            sharedPreferences = itemView.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
             holder = new GroupsJoinedListHolder(itemView);
         }
 
@@ -121,7 +133,10 @@ public class ProfilePageAdapterActivity extends
 
         public ProfileInfoViewHolder(View itemView) {
             super(itemView);
-
+            profile_name=(TextView)itemView.findViewById(R.id.profile_name);
+            profile_tags=(TextView)itemView.findViewById(R.id.profile_tag);
+            tv_branch=(TextView)itemView.findViewById(R.id.tv_branch);
+            tv_batch_of=(TextView)itemView.findViewById(R.id.tv_batch_of);
         }
     }
 
