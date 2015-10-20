@@ -19,7 +19,7 @@
 package com.appspot.campus_connect_2015.clubs.model;
 
 /**
- * Model definition for ModelsGetAllPostRequests.
+ * Model definition for ModelsModifyEvent.
  *
  * <p> This is the Java data model class that specifies how to parse/serialize into the JSON that is
  * transmitted over HTTP when working with the clubs. For a detailed explanation see:
@@ -29,43 +29,58 @@ package com.appspot.campus_connect_2015.clubs.model;
  * @author Google, Inc.
  */
 @SuppressWarnings("javadoc")
-public final class ModelsGetAllPostRequests extends com.google.api.client.json.GenericJson {
+public final class ModelsModifyEvent extends com.google.api.client.json.GenericJson {
 
   /**
    * The value may be {@code null}.
    */
   @com.google.api.client.util.Key
-  private java.util.List<ModelsGetPostRequestsForm> items;
+  private java.lang.String eventId;
 
-  static {
-    // hack to force ProGuard to consider ModelsGetPostRequestsForm used, since otherwise it would be stripped out
-    // see http://code.google.com/p/google-api-java-client/issues/detail?id=528
-    com.google.api.client.util.Data.nullOf(ModelsGetPostRequestsForm.class);
+  /**
+   * The value may be {@code null}.
+   */
+  @com.google.api.client.util.Key("from_pid")
+  private java.lang.String fromPid;
+
+  /**
+   * @return value or {@code null} for none
+   */
+  public java.lang.String getEventId() {
+    return eventId;
+  }
+
+  /**
+   * @param eventId eventId or {@code null} for none
+   */
+  public ModelsModifyEvent setEventId(java.lang.String eventId) {
+    this.eventId = eventId;
+    return this;
   }
 
   /**
    * @return value or {@code null} for none
    */
-  public java.util.List<ModelsGetPostRequestsForm> getItems() {
-    return items;
+  public java.lang.String getFromPid() {
+    return fromPid;
   }
 
   /**
-   * @param items items or {@code null} for none
+   * @param fromPid fromPid or {@code null} for none
    */
-  public ModelsGetAllPostRequests setItems(java.util.List<ModelsGetPostRequestsForm> items) {
-    this.items = items;
+  public ModelsModifyEvent setFromPid(java.lang.String fromPid) {
+    this.fromPid = fromPid;
     return this;
   }
 
   @Override
-  public ModelsGetAllPostRequests set(String fieldName, Object value) {
-    return (ModelsGetAllPostRequests) super.set(fieldName, value);
+  public ModelsModifyEvent set(String fieldName, Object value) {
+    return (ModelsModifyEvent) super.set(fieldName, value);
   }
 
   @Override
-  public ModelsGetAllPostRequests clone() {
-    return (ModelsGetAllPostRequests) super.clone();
+  public ModelsModifyEvent clone() {
+    return (ModelsModifyEvent) super.clone();
   }
 
 }

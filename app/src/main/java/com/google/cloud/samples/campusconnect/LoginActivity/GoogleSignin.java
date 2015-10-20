@@ -335,8 +335,6 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                             SharedPreferences.Editor edit= sharedPreferences.edit();
                             edit.putString(AppConstants.BATCH,mpList.getBatch());
                             edit.putString(AppConstants.BRANCH,mpList.getBranch());
-                            edit.putString(AppConstants.COLLEGE_LOCATION,mpList.getCollegeLocation());
-                            edit.putString(AppConstants.COLLEGE_NAME,mpList.getCollegeName());
                             if(mpList.getIsAlumni().equals("Y")){
                                 edit.putString(AppConstants.PROFILE_CATEGORY,AppConstants.ALUMNI);
                             }else{

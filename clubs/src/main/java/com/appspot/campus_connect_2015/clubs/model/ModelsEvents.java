@@ -19,7 +19,7 @@
 package com.appspot.campus_connect_2015.clubs.model;
 
 /**
- * Model definition for ModelsGetAllPostRequests.
+ * Model definition for ModelsEvents.
  *
  * <p> This is the Java data model class that specifies how to parse/serialize into the JSON that is
  * transmitted over HTTP when working with the clubs. For a detailed explanation see:
@@ -29,43 +29,37 @@ package com.appspot.campus_connect_2015.clubs.model;
  * @author Google, Inc.
  */
 @SuppressWarnings("javadoc")
-public final class ModelsGetAllPostRequests extends com.google.api.client.json.GenericJson {
+public final class ModelsEvents extends com.google.api.client.json.GenericJson {
 
   /**
    * The value may be {@code null}.
    */
   @com.google.api.client.util.Key
-  private java.util.List<ModelsGetPostRequestsForm> items;
-
-  static {
-    // hack to force ProGuard to consider ModelsGetPostRequestsForm used, since otherwise it would be stripped out
-    // see http://code.google.com/p/google-api-java-client/issues/detail?id=528
-    com.google.api.client.util.Data.nullOf(ModelsGetPostRequestsForm.class);
-  }
+  private java.util.List<ModelsEventForm> items;
 
   /**
    * @return value or {@code null} for none
    */
-  public java.util.List<ModelsGetPostRequestsForm> getItems() {
+  public java.util.List<ModelsEventForm> getItems() {
     return items;
   }
 
   /**
    * @param items items or {@code null} for none
    */
-  public ModelsGetAllPostRequests setItems(java.util.List<ModelsGetPostRequestsForm> items) {
+  public ModelsEvents setItems(java.util.List<ModelsEventForm> items) {
     this.items = items;
     return this;
   }
 
   @Override
-  public ModelsGetAllPostRequests set(String fieldName, Object value) {
-    return (ModelsGetAllPostRequests) super.set(fieldName, value);
+  public ModelsEvents set(String fieldName, Object value) {
+    return (ModelsEvents) super.set(fieldName, value);
   }
 
   @Override
-  public ModelsGetAllPostRequests clone() {
-    return (ModelsGetAllPostRequests) super.clone();
+  public ModelsEvents clone() {
+    return (ModelsEvents) super.clone();
   }
 
 }
