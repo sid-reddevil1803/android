@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="35dp">
+    <TextView
+        android:id="@+id/tv_are_you"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="80dp"
+        android:paddingBottom="20dp"
+        android:text="Are you:"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:alpha="0.75"/>
+    <Button
+        android:id="@+id/b_student_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_are_you"
+        android:text="Student"
+        android:padding="16dp"
+        android:gravity="center"/>
+    <TextView
+        android:id="@+id/tv_or"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="or"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:alpha="0.45"
+        android:layout_below="@+id/b_student_category"/>
+    <Button
+        android:id="@+id/b_alumini_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alumini"
+        android:padding="16dp"
+        android:layout_below="@+id/tv_or"
+        android:gravity="center"/>
+
+</RelativeLayout>

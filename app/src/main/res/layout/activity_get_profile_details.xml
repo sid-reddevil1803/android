@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+    <TextView
+        android:id="@+id/tv_profile_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Profile Details"
+        android:textColor="#000000"
+        android:alpha="0.81"
+        android:paddingTop="10dp"
+        android:textSize="22sp"/>
+    <TextView
+        android:id="@+id/tv_graduating_year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        android:text="Graduating Year"
+        android:paddingLeft="5dp"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:alpha="0.87"
+        android:layout_below="@+id/tv_profile_details"/>
+    <EditText
+        android:id="@+id/et_batch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_below="@+id/tv_graduating_year"
+        android:paddingTop="5dp"
+        android:layout_alignRight="@+id/tv_graduating_year"/>
+    <EditText
+        android:id="@+id/et_branch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Branch"
+        android:textColorHint="#d9d9d9"
+        android:textColor="#000000"
+        android:paddingTop="15dp"
+        android:layout_below="@+id/et_batch"/>
+    <EditText
+        android:id="@+id/et_company"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Company"
+        android:textColorHint="#d9d9d9"
+        android:textColor="#000000"
+        android:paddingTop="15dp"
+        android:layout_below="@+id/et_branch"/>
+    <EditText
+        android:id="@+id/et_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Location"
+        android:textColorHint="#d9d9d9"
+        android:textColor="#000000"
+        android:paddingTop="15dp"
+        android:layout_below="@+id/et_company"/>
+    <EditText
+        android:id="@+id/et_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Phone"
+        android:textColorHint="#d9d9d9"
+        android:textColor="#000000"
+        android:paddingTop="15dp"
+        android:layout_below="@+id/et_location"
+        android:gravity="top|left"
+        android:singleLine="false"
+        android:lines="5"
+        android:inputType="textMultiLine"/>
+    <TextView
+        android:id="@+id/tv_skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Skip >"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:paddingTop="20dp"
+        android:layout_below="@+id/et_phone"/>
+    <Button
+        android:id="@+id/b_continue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CONTINUE"
+        android:textSize="20sp"
+        android:layout_alignRight="@+id/tv_profile_details"
+        android:layout_alignTop="@+id/tv_skip"/>
+
+
+
+</RelativeLayout>

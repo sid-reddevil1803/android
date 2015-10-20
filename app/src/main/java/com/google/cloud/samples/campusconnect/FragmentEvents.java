@@ -1,0 +1,85 @@
+package com.google.cloud.samples.campusconnect;
+
+/**
+ * Created by RK on 17-09-2015.
+ */
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.appspot.campus_connect_2015.clubs.Clubs;
+import com.appspot.campus_connect_2015.clubs.model.ModelsColleges;
+import com.appspot.campus_connect_2015.clubs.model.ModelsGetCollege;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.cloud.samples.campusconnect.LoginActivity.CollegeListAdapterActivity;
+import com.google.cloud.samples.campusconnect.LoginActivity.CollegeList_infoActivity;
+import com.google.common.base.Strings;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Created by hp1 on 21-01-2015.
+ */
+public class FragmentEvents extends Fragment {
+    private static final String LOG_TAG="FragmentEvents";
+    RecyclerView college_feed;
+    FloatingActionButton fab;
+    String collegeId;
+    String mEmailAccount = "";
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View v =inflater.inflate(R.layout.fragment_events,container,false);
+
+        fab=(FloatingActionButton)v.findViewById(R.id.fab_add);
+        college_feed = (RecyclerView) v.findViewById(R.id.rv_college_feed);
+        college_feed.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(v.getContext());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        college_feed.setLayoutManager(llm);
+        college_feed.setItemAnimator(new DefaultItemAnimator());
+        CollegeFeedAdapterActivity cf = new CollegeFeedAdapterActivity(
+                createList_cf(7));
+        college_feed.setAdapter(cf);
+
+        SharedPreferences sharedpreferences = v.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
+        collegeId=sharedpreferences.getString(AppConstants.COLLEGE_ID,null);
+        mEmailAccount=sharedpreferences.getString(AppConstants.EMAIL_KEY,null);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent_temp = new Intent(v.getContext(), CreatePostActivity.class);
+                startActivity(intent_temp);
+
+            }
+        });
+        return v;
+    }
+    private List<CollegeFeed_infoActivity> createList_cf(int size) {
+        List<CollegeFeed_infoActivity> result = new ArrayList<CollegeFeed_infoActivity>();
+        for (int i = 1; i <= size; i++) {
+            CollegeFeed_infoActivity ci = new CollegeFeed_infoActivity();
+            result.add(ci);
+
+        }
+
+        return result;
+    }
+}
