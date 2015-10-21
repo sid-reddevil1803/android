@@ -54,16 +54,6 @@ public class SelectCollegeActivity extends AppCompatActivity {
         getColleges();
     }
 
-    private List<CollegeList_infoActivity> createList_cl(int size) {
-        List<CollegeList_infoActivity> result = new ArrayList<CollegeList_infoActivity>();
-        for (int i = 1; i <= size; i++) {
-            CollegeList_infoActivity ci = new CollegeList_infoActivity();
-            result.add(ci);
-        }
-
-        return result;
-    }
-
 
     public void getColleges() {
         if (!isSignedIn()) {
@@ -111,7 +101,7 @@ public class SelectCollegeActivity extends AppCompatActivity {
                             college_list.setAdapter(cl);
 
                         } else {
-                            Log.e(LOG_TAG, "No colleges were returned by the API.");
+                            Log.e(LOG_TAG, "No clubs were returned by the API.");
                         }
                     }
                 };

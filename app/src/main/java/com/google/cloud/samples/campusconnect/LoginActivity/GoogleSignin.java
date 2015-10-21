@@ -341,7 +341,8 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                                 edit.putString(AppConstants.PROFILE_CATEGORY,AppConstants.STUDENT);
                             }
                             edit.putString(AppConstants.PHONE,mpList.getPhone());
-
+                            edit.putString(AppConstants.COLLEGE_ID,mpList.getCollegeId());
+                            edit.putString(AppConstants.PERSON_PID,mpList.getPid());
                             edit.commit();
                             Intent intent_temp = new Intent(v.getContext(), MainActivity.class);
                             startActivity(intent_temp);

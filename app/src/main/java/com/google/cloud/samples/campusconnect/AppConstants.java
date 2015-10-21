@@ -52,6 +52,8 @@ public class AppConstants {
 
     public static final String BRANCH = "branch";
 
+    public static final String PERSON_PID = "person_pid";
+
     public static final JsonFactory JSON_FACTORY = new AndroidJsonFactory();
 
     public static final HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();

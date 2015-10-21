@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubMiniForm;
+
 import java.util.List;
 
 /**
@@ -17,7 +19,7 @@ import java.util.List;
 public class GroupListAdapterActivity extends
         RecyclerView.Adapter<GroupListAdapterActivity.GroupListViewHolder> {
 
-    private List<GroupList_infoActivity> GroupList;
+    private List<ModelsClubMiniForm> GroupList;
     private List<String> itemsName;
     int posi=0;
     CharSequence GroupTitles[]={"E-Cell","Football Team","IE NITK","Rotaract Club"};
@@ -30,7 +32,7 @@ public class GroupListAdapterActivity extends
     private static int[] followers_count = new int[] { 2,3,4,2};
     private static int[] members_count = new int[] { 1,2,1,2};
 
-    public GroupListAdapterActivity(List<GroupList_infoActivity> GroupList) {
+    public GroupListAdapterActivity(List<ModelsClubMiniForm> GroupList) {
         this.GroupList = GroupList;
     }
 
@@ -46,8 +48,8 @@ public class GroupListAdapterActivity extends
 
     @Override
     public void onBindViewHolder(GroupListViewHolder group_listViewHolder, int i) {
-        GroupList_infoActivity ci = GroupList.get(i);
-        group_listViewHolder.group_title.setText(GroupTitles[i]);
+        ModelsClubMiniForm ci = GroupList.get(i);
+        group_listViewHolder.group_title.setText(GroupList.get(i).getName());
     }
 
     @Override
@@ -80,7 +82,7 @@ public class GroupListAdapterActivity extends
                     posi=getPosition();
 
                     Bundle bundle = new Bundle();
-                    bundle.putString("G_NAME", (String) GroupTitles[posi]);
+                    bundle.putString("G_NAME", (String) GroupList.get(posi).getName());
                     bundle.putInt("G_ICON", GroupLogo[posi]);
                     bundle.putInt("F_COUNT", followers_count[posi]);
                     bundle.putInt("M_COUNT",members_count[posi]);
@@ -110,4 +112,3 @@ public class GroupListAdapterActivity extends
 
     }
 }
-

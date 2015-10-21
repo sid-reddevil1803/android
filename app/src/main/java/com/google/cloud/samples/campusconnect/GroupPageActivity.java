@@ -1,20 +1,41 @@
 package com.google.cloud.samples.campusconnect;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.appspot.campus_connect_2015.clubs.Clubs;
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubListResponse;
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubRetrievalMiniForm;
+import com.appspot.campus_connect_2015.clubs.model.ModelsColleges;
+import com.appspot.campus_connect_2015.clubs.model.ModelsGetCollege;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.cloud.samples.campusconnect.LoginActivity.CollegeListAdapterActivity;
+import com.google.cloud.samples.campusconnect.LoginActivity.CollegeList_infoActivity;
+import com.google.common.base.Strings;
+
+import java.io.IOException;
+import java.security.acl.Group;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class GroupPageActivity extends ActionBarActivity {
 
     RecyclerView group_page;
+
+    private static final String LOG_TAG="GroupPageActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
