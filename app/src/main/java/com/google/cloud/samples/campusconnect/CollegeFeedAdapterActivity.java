@@ -4,11 +4,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.appspot.campus_connect_2015.clubs.model.ModelsCollegeFeed;
+import com.appspot.campus_connect_2015.clubs.model.ModelsFeed;
 
 import java.util.List;
 
@@ -18,7 +22,7 @@ import java.util.List;
 public class CollegeFeedAdapterActivity extends
         RecyclerView.Adapter<CollegeFeedAdapterActivity.CollegeFeedViewHolder> {
 
-    private List<CollegeFeed_infoActivity> CollegeFeedList;
+    private List<ModelsFeed> CollegeFeedList;
     int posi=0;
     int going_click_count=0;
     int share_click_count=0;
@@ -51,7 +55,7 @@ public class CollegeFeedAdapterActivity extends
     CharSequence Description[]={"Be part of the greatest dramatics show of the college. If you love the stage, you will love to be a part of our show. Open to all.","SPARK is inspired by TEDx Talks where you will have a chance to interact, ask questions and learn from amazing people from your own campus!","Have an Idea? or want to Startup? Present your idea to us and you can win access to STEP resources and great mentorship.","All students are cordially invited for the NITK Beach Clean-Up Drive on September 19th (Saturday) as a part of the 'International Coastal Clean-Up Day' Celebration. This event is being held in association with NSS NITK & the Rotaract Club of our college.\n","The new recruits are the following:\n14EE201 Abhijay Kumar Pandit\n14ME139 Parikshit\n14EC202 Aditya Nishtala\n14CO132 Prajwal Kailas\n14CH02 Aishwarya Sanjeev Kumar\n14CV136 Pralay S","Be a part of the football team! Come and show us what you got. Talented and enthusiastic first years are welcome.",
             "The NITK Football team won 2 games to reach the quarter finals of the independence cup. They lost their third game by a small 2-1 margin which put them out of the tournament."};
 
-    public CollegeFeedAdapterActivity(List<CollegeFeed_infoActivity> CollegeFeedList) {
+    public CollegeFeedAdapterActivity(List<ModelsFeed> CollegeFeedList) {
         this.CollegeFeedList = CollegeFeedList;
     }
 
@@ -62,13 +66,14 @@ public class CollegeFeedAdapterActivity extends
 
     @Override
     public void onBindViewHolder(CollegeFeedViewHolder college_feedViewHolder, int i) {
-        CollegeFeed_infoActivity ci = CollegeFeedList.get(i);
-       college_feedViewHolder.event_title.setText(EventTitles[i]);
-       college_feedViewHolder.group_name.setText(GroupNames[i]);
-       college_feedViewHolder.timestamp.setText(Timestamp[i]);
+        ModelsFeed cf = CollegeFeedList.get(i);
+       college_feedViewHolder.event_title.setText(cf.getTitle());
+       college_feedViewHolder.group_name.setText(cf.getClubId());
+       college_feedViewHolder.timestamp.setText(cf.getStartTime());
        college_feedViewHolder.event_photo.setImageResource(event_photos[i]);
 
-        if(i==4 || i==6)
+        //news
+        if(cf.getAttendees()==null||cf.getAttendees().size()==0)
         {
            college_feedViewHolder.day.setVisibility(View.GONE);
            college_feedViewHolder.date_month.setVisibility(View.GONE);
@@ -79,7 +84,7 @@ public class CollegeFeedAdapterActivity extends
         }
 
         else {
-           college_feedViewHolder.day.setText(Day[i]);
+           college_feedViewHolder.day.setText(cf.getStartDate());
            college_feedViewHolder.date_month.setText(Date_Month[i]);
            college_feedViewHolder.time.setText(Time_[i]);
             college_feedViewHolder.news_icon.setVisibility(View.GONE);
@@ -128,12 +133,13 @@ public class CollegeFeedAdapterActivity extends
                     posi=getPosition();
                     //Create the bundle
                     Bundle bundle = new Bundle();
-                    bundle.putString("E_NAME", (String) EventTitles[posi]);
-                    bundle.putString("E_TIME",(String) Time_[posi]);
-                    bundle.putString("E_DATE",(String) Date_Month[posi]);
-                    bundle.putString("G_NAME",(String) GroupNames[posi]);
-                    bundle.putString("V_NAME",(String) Venue[posi]);
-                    bundle.putString("E_DESCRIPTION",(String) Description[posi]);
+                    Log.e("Selected",CollegeFeedList.get(posi).toString());
+                    bundle.putString("E_NAME", CollegeFeedList.get(posi).getTitle());
+                    bundle.putString("E_TIME",CollegeFeedList.get(posi).getStartTime());
+                    bundle.putString("E_DATE",CollegeFeedList.get(posi).getStartDate());
+                    bundle.putString("G_NAME",CollegeFeedList.get(posi).getClubId());
+                    bundle.putString("V_NAME",CollegeFeedList.get(posi).getVenue());
+                    bundle.putString("E_DESCRIPTION",CollegeFeedList.get(posi).getDescription());
                     bundle.putInt("E_PHOTO", event_photos[posi]);
                     bundle.putInt("G_PHOTO",GroupLogo[posi]);
                     bundle.putInt("FLAG_NEWS_TOP",flag_news);

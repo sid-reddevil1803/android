@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.appspot.campus_connect_2015.clubs.Clubs;
 import com.appspot.campus_connect_2015.clubs.model.ModelsColleges;
+import com.appspot.campus_connect_2015.clubs.model.ModelsFeed;
 import com.appspot.campus_connect_2015.clubs.model.ModelsGetCollege;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.cloud.samples.campusconnect.LoginActivity.CollegeListAdapterActivity;
@@ -72,10 +73,10 @@ public class FragmentEvents extends Fragment {
         });
         return v;
     }
-    private List<CollegeFeed_infoActivity> createList_cf(int size) {
-        List<CollegeFeed_infoActivity> result = new ArrayList<CollegeFeed_infoActivity>();
+    private List<ModelsFeed> createList_cf(int size) {
+        List<ModelsFeed> result = new ArrayList<ModelsFeed>();
         for (int i = 1; i <= size; i++) {
-            CollegeFeed_infoActivity ci = new CollegeFeed_infoActivity();
+            ModelsFeed ci = new ModelsFeed();
             result.add(ci);
 
         }

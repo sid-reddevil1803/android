@@ -52,9 +52,12 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity {
 
+    CollegeFeedAdapterActivity tn;//change to myfeed
     GroupListAdapterActivity gl;
-
+    CollegeFeedAdapterActivity cf;//change to campusfeed
     RecyclerView group_list;
+    RecyclerView college_feed;
+    RecyclerView topnews;
 
     ImageButton admin;
     ImageButton noti, profile, home, calendar, search;
@@ -173,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getPersonalFeed(){
+    public void getPersonalFeed() {
         if (!isSignedIn()) {
             Toast.makeText(MainActivity.this, "You must sign in for this action.", Toast.LENGTH_LONG).show();
             return;
@@ -185,7 +188,8 @@ public class MainActivity extends AppCompatActivity {
                     protected ModelsCollegeFeed doInBackground(Void... unused) {
                         if (!isSignedIn()) {
                             return null;
-                        };
+                        }
+                        ;
 
                         if (!AppConstants.checkGooglePlayServicesAvailable(MainActivity.this)) {
                             return null;
@@ -199,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                         // Retrieve service handle using credential since this is an authenticated call.
                         try {
                             Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
-                            ModelsGetInformation modelsGetInformation=new ModelsGetInformation();
+                            ModelsGetInformation modelsGetInformation = new ModelsGetInformation();
                             modelsGetInformation.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID, "null"));
                             modelsGetInformation.setPid(sharedPreferences.getString(AppConstants.PERSON_PID, "null"));
                             Clubs.PersonalFeed getFeed = apiServiceHandle.personalFeed(modelsGetInformation);
@@ -216,9 +220,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ModelsCollegeFeed cList) {
-                        if (cList!=null) {
+                        if (cList != null) {
                             try {
-                                Log.e(LOG_TAG,cList.toPrettyString());
+                                Log.e(LOG_TAG, cList.toPrettyString());
+                                tn = new CollegeFeedAdapterActivity(displayCampusFeed(cList));
+                                tn.notifyDataSetChanged();
+                                topnews.setAdapter(tn);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -230,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
         getPersonalFeed.execute((Void) null);
     }
 
-    public void getCampusFeed(){
+    public void getCampusFeed() {
         if (!isSignedIn()) {
             Toast.makeText(MainActivity.this, "You must sign in for this action.", Toast.LENGTH_LONG).show();
             return;
@@ -242,7 +249,8 @@ public class MainActivity extends AppCompatActivity {
                     protected ModelsCollegeFeed doInBackground(Void... unused) {
                         if (!isSignedIn()) {
                             return null;
-                        };
+                        }
+                        ;
 
                         if (!AppConstants.checkGooglePlayServicesAvailable(MainActivity.this)) {
                             return null;
@@ -256,9 +264,9 @@ public class MainActivity extends AppCompatActivity {
                         // Retrieve service handle using credential since this is an authenticated call.
                         try {
                             Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
-                            ModelsGetInformation modelsGetInformation=new ModelsGetInformation();
+                            ModelsGetInformation modelsGetInformation = new ModelsGetInformation();
                             modelsGetInformation.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID, "null"));
-                            Clubs.CollegeFeed getCollegeFeed=apiServiceHandle.collegeFeed(modelsGetInformation);
+                            Clubs.CollegeFeed getCollegeFeed = apiServiceHandle.collegeFeed(modelsGetInformation);
 
                             ModelsCollegeFeed cf = getCollegeFeed.execute();
                             Log.e(LOG_TAG, "SUCCESS");
@@ -272,9 +280,13 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ModelsCollegeFeed cList) {
-                        if (cList!=null) {
+                        if (cList != null) {
                             try {
-                                Log.e(LOG_TAG,cList.toPrettyString());
+                                Log.e(LOG_TAG, cList.toPrettyString());
+                                cf = new CollegeFeedAdapterActivity(displayCampusFeed(cList));
+                                cf.notifyDataSetChanged();
+                                college_feed.setAdapter(cf);
+                                //displayCampusFeed(cList);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -299,7 +311,8 @@ public class MainActivity extends AppCompatActivity {
                     protected ModelsClubListResponse doInBackground(Void... unused) {
                         if (!isSignedIn()) {
                             return null;
-                        };
+                        }
+                        ;
 
                         if (!AppConstants.checkGooglePlayServicesAvailable(MainActivity.this)) {
                             return null;
@@ -314,9 +327,9 @@ public class MainActivity extends AppCompatActivity {
                         Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
 
                         try {
-                            ModelsClubRetrievalMiniForm clubRetrievalMiniForm=new ModelsClubRetrievalMiniForm();
-                            clubRetrievalMiniForm.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID,"null"));
-                            Clubs.GetClubList gcl= apiServiceHandle.getClubList(clubRetrievalMiniForm);
+                            ModelsClubRetrievalMiniForm clubRetrievalMiniForm = new ModelsClubRetrievalMiniForm();
+                            clubRetrievalMiniForm.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID, "null"));
+                            Clubs.GetClubList gcl = apiServiceHandle.getClubList(clubRetrievalMiniForm);
                             ModelsClubListResponse clubListResponse = gcl.execute();
                             Log.e(LOG_TAG, "SUCCESS");
                             Log.e(LOG_TAG, clubListResponse.toPrettyString());
@@ -329,10 +342,10 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     protected void onPostExecute(ModelsClubListResponse cList) {
-                        if (cList!=null) {
+                        if (cList != null) {
                             try {
                                 Log.e(LOG_TAG, cList.toPrettyString());
-                                gl=new GroupListAdapterActivity(displayClubs(cList));
+                                gl = new GroupListAdapterActivity(displayClubs(cList));
                                 gl.notifyDataSetChanged();
                                 group_list.setAdapter(gl);
                             } catch (IOException e) {
@@ -358,18 +371,46 @@ public class MainActivity extends AppCompatActivity {
     private List<ModelsClubMiniForm> displayClubs(ModelsClubListResponse... response) {
         Log.e(LOG_TAG, response.toString());
 
-        if (response==null || response.length < 1) {
+        if (response == null || response.length < 1) {
             return null;
-        } else
-        {
+        } else {
             Log.d(LOG_TAG, "Displaying " + response.length + " colleges.");
             List<ModelsClubListResponse> clubList = Arrays.asList(response);
             return clubList.get(0).getList();
         }
     }
 
+    private List<ModelsFeed> displayCampusFeed(ModelsCollegeFeed... response) {
+        Log.e(LOG_TAG, "inside");
 
-    public class FragmentGroups extends Fragment {
+        if (response == null) {
+            Log.e(LOG_TAG, "null");
+            return null;
+        } else {
+            Log.e(LOG_TAG, "Displaying " + response.length + " colleges.");
+            List<ModelsCollegeFeed> clubList = Arrays.asList(response);
+            //Log.e(LOG_TAG, clubList.toString());
+            Log.e(LOG_TAG, clubList.get(0).getItems().toString());
+            return clubList.get(0).getItems();
+        }
+    }
+
+    private List<ModelsFeed> displayMyFeed(ModelsCollegeFeed... response) {
+        Log.e(LOG_TAG, "inside");
+
+        if (response == null) {
+            Log.e(LOG_TAG, "null");
+            return null;
+        } else {
+            Log.e(LOG_TAG, "Displaying " + response.length + " colleges.");
+            List<ModelsCollegeFeed> clubList = Arrays.asList(response);
+            //Log.e(LOG_TAG, clubList.toString());
+            Log.e(LOG_TAG, clubList.get(0).getItems().toString());
+            return clubList.get(0).getItems();
+        }
+    }
+
+    class FragmentGroups extends Fragment {
 
         private static final String LOG_TAG = "FragmentGroups";
 
@@ -382,7 +423,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-            MainActivity.this.getGroups();
+            //MainActivity.this.getGroups();
             View v = inflater.inflate(R.layout.fragment_groups, container, false);
 
             group_list = (RecyclerView) v.findViewById(R.id.rv_group_list);
@@ -393,7 +434,9 @@ public class MainActivity extends AppCompatActivity {
             llm.setOrientation(LinearLayoutManager.VERTICAL);
             group_list.setLayoutManager(llm);
             group_list.setItemAnimator(new DefaultItemAnimator());
-            gl=new GroupListAdapterActivity(createList_gl(1));
+            if (gl == null) {
+                gl = new GroupListAdapterActivity(createList_gl(1));
+            }
             group_list.setAdapter(gl);
             gl.notifyDataSetChanged();
 
@@ -411,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
 
         public List<ModelsClubMiniForm> createList_gl(int size) {
             List<ModelsClubMiniForm> result = new ArrayList<ModelsClubMiniForm>();
-            for (int i = 1; i <=size; i++) {
+            for (int i = 1; i <= size; i++) {
                 ModelsClubMiniForm ci = new ModelsClubMiniForm();
 
                 result.add(ci);
@@ -423,30 +466,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class FragmentEvents extends Fragment {
-        private static final String LOG_TAG="FragmentEvents";
-        RecyclerView college_feed;
+    public class FragmentCampusFeed extends Fragment {
+        private static final String LOG_TAG = "FragmentCampusFeed";
         FloatingActionButton fab;
         String collegeId;
         String mEmailAccount = "";
+
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            View v =inflater.inflate(R.layout.fragment_events,container,false);
+            View v = inflater.inflate(R.layout.fragment_events, container, false);
 
-            fab=(FloatingActionButton)v.findViewById(R.id.fab_add);
+            fab = (FloatingActionButton) v.findViewById(R.id.fab_add);
             college_feed = (RecyclerView) v.findViewById(R.id.rv_college_feed);
             college_feed.setHasFixedSize(false);
             LinearLayoutManager llm = new LinearLayoutManager(v.getContext());
             llm.setOrientation(LinearLayoutManager.VERTICAL);
             college_feed.setLayoutManager(llm);
             college_feed.setItemAnimator(new DefaultItemAnimator());
-            CollegeFeedAdapterActivity cf = new CollegeFeedAdapterActivity(
-                    createList_cf(7));
+            if (cf == null) {
+                cf = new CollegeFeedAdapterActivity(
+                        createList_cf(7));
+            }
             college_feed.setAdapter(cf);
 
             SharedPreferences sharedpreferences = v.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
-            collegeId=sharedpreferences.getString(AppConstants.COLLEGE_ID,null);
-            mEmailAccount=sharedpreferences.getString(AppConstants.EMAIL_KEY,null);
+            collegeId = sharedpreferences.getString(AppConstants.COLLEGE_ID, null);
+            mEmailAccount = sharedpreferences.getString(AppConstants.EMAIL_KEY, null);
 
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -459,10 +504,11 @@ public class MainActivity extends AppCompatActivity {
             });
             return v;
         }
-        private List<CollegeFeed_infoActivity> createList_cf(int size) {
-            List<CollegeFeed_infoActivity> result = new ArrayList<CollegeFeed_infoActivity>();
+
+        private List<ModelsFeed> createList_cf(int size) {
+            List<ModelsFeed> result = new ArrayList<ModelsFeed>();
             for (int i = 1; i <= size; i++) {
-                CollegeFeed_infoActivity ci = new CollegeFeed_infoActivity();
+                ModelsFeed ci = new ModelsFeed();
                 result.add(ci);
 
             }
@@ -472,33 +518,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class FragmentTopNews extends Fragment {
+    public class FragmentMyFeed extends Fragment {
 
-        RecyclerView topnews;
         FloatingActionButton fab;
-        public int pos=0;
+        public int pos = 0;
 
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            View v =inflater.inflate(R.layout.fragment_top_news,container,false);
+            View v = inflater.inflate(R.layout.fragment_top_news, container, false);
 
-            fab=(FloatingActionButton)v.findViewById(R.id.fab_add);
+            fab = (FloatingActionButton) v.findViewById(R.id.fab_add);
             topnews = (RecyclerView) v.findViewById(R.id.rv_top_news);
             topnews.setHasFixedSize(true);
             LinearLayoutManager llm = new LinearLayoutManager(v.getContext());
             llm.setOrientation(LinearLayoutManager.VERTICAL);
             topnews.setLayoutManager(llm);
             topnews.setItemAnimator(new DefaultItemAnimator());
-            TopNewsAdapterActivity tn = new TopNewsAdapterActivity(
-                    createList_tn(4));
-            topnews.setAdapter(tn);
-            tn.SetOnItemClickListener(new OnItemClickListener() {
+            if (tn == null) {
+                tn = new CollegeFeedAdapterActivity(
+                        createList_cf(4));
+                topnews.setAdapter(tn);
+            }
 
-                @Override
-                public void onItemClick(View v , int position) {
-                    pos=position;
-                }
-            });
 
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -514,18 +555,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-        private List<TopNews_infoActivity> createList_tn(int size) {
-            List<TopNews_infoActivity> result = new ArrayList<TopNews_infoActivity>();
+        private List<ModelsFeed> createList_cf(int size) {
+            List<ModelsFeed> result = new ArrayList<ModelsFeed>();
             for (int i = 1; i <= size; i++) {
-                TopNews_infoActivity ci = new TopNews_infoActivity();
-
+                ModelsFeed ci = new ModelsFeed();
                 result.add(ci);
+
             }
-            return result;
+        return result;
         }
     }
-
 
     public class FragmentLive extends Fragment {
 
@@ -575,20 +614,20 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(position == 1)
             {
-                MainActivity.FragmentTopNews fragtopnews = new MainActivity.FragmentTopNews();
+                MainActivity.FragmentMyFeed fragtopnews = new MainActivity.FragmentMyFeed();
                 MainActivity.this.getPersonalFeed();
                 return fragtopnews;
             }
             else if(position == 2)
             {
-                MainActivity.FragmentEvents fragevents = new MainActivity.FragmentEvents();
+                MainActivity.FragmentCampusFeed fragevents = new MainActivity.FragmentCampusFeed();
                 MainActivity.this.getCampusFeed();
                 return fragevents;
             }
             else
             {
                 MainActivity.FragmentGroups fraggroups = new MainActivity.FragmentGroups();
-                //MainActivity.this.getGroups();
+                MainActivity.this.getGroups();
                 return fraggroups;
             }
         }
@@ -621,5 +660,6 @@ public class MainActivity extends AppCompatActivity {
             return ICONS[position];
         }
     }
+
 
 }
