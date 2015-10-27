@@ -78,8 +78,9 @@ public final class ModelsClubRequestMiniForm extends com.google.api.client.json.
 
   /**
    * @return value or {@code null} for none
+   * @param s
    */
-  public java.lang.String getClubName() {
+  public java.lang.String getClubName(String s) {
     return clubName;
   }
 

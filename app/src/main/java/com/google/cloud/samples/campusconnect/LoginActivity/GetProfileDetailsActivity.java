@@ -85,6 +85,8 @@ public class GetProfileDetailsActivity extends AppCompatActivity implements View
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putString(AppConstants.BATCH, pmf.getBatch());
         edit.putString(AppConstants.BRANCH, pmf.getBranch());
+        Log.e("Follows", String.valueOf(pmf.getFollows()));
+        //edit.putString(AppConstants.BRANCH, pmf.getFollows();
         edit.commit();
         pmf.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID,null));
         saveProfile();
