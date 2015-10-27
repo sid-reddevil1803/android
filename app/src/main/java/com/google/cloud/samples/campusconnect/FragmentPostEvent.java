@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -18,11 +19,16 @@ public class FragmentPostEvent extends Fragment {
 
     RelativeLayout group_name_post;
     TextView group_selected_text_post;
+    EditText et_title;
+    String test;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_post_event, container, false);
         group_name_post = (RelativeLayout) v.findViewById(R.id.group_select_when_posting);
         group_selected_text_post = (TextView) v.findViewById(R.id.tv_group_name_selected_when_posting);
+        et_title = (EditText) v.findViewById(R.id.et_post_title);
+
+
 
         group_name_post.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,6 +48,17 @@ public class FragmentPostEvent extends Fragment {
                 });
                 AlertDialog alert = builder.create();
                 alert.show();
+
+
+            }
+        });
+
+        CreatePostActivity.post.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                test = et_title.getText().toString();
+                CreatePostActivity.post.setText(test);
 
 
             }
