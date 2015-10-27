@@ -23,6 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.appspot.campus_connect_2015.clubs.Clubs;
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubListResponse;
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubMiniForm;
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubRetrievalMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsCollegeFeed;
 import com.appspot.campus_connect_2015.clubs.model.ModelsGetInformation;
 import com.appspot.campus_connect_2015.clubs.model.ModelsPostMiniForm;
@@ -30,6 +33,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.common.base.Strings;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by RK on 07-10-2015.
@@ -42,6 +47,8 @@ public class CreatePostActivity extends AppCompatActivity {
     SlidingTabLayout_CreatePost tabs;
     public static Button post;
     CharSequence Titles[]={"Event","News"};
+
+    List<ModelsClubMiniForm> modelsClubMiniForms;
 
     static SharedPreferences sharedPreferences;
     private String mEmailAccount="";
@@ -67,6 +74,78 @@ public class CreatePostActivity extends AppCompatActivity {
 
     }
 
+    public void getGroups() {
+        if (!isSignedIn()) {
+            Toast.makeText(CreatePostActivity.this, "You must sign in for this action.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AsyncTask<Void, Void, ModelsClubListResponse> getClubsAndPopulate =
+                new AsyncTask<Void, Void, ModelsClubListResponse>() {
+                    @Override
+                    protected ModelsClubListResponse doInBackground(Void... unused) {
+                        if (!isSignedIn()) {
+                            return null;
+                        }
+                        ;
+
+                        if (!AppConstants.checkGooglePlayServicesAvailable(CreatePostActivity.this)) {
+                            return null;
+                        }
+
+                        // Create a Google credential since this is an authenticated request to the API.
+                        GoogleAccountCredential credential = GoogleAccountCredential.usingAudience(
+                                CreatePostActivity.this, AppConstants.AUDIENCE);
+                        credential.setSelectedAccountName(mEmailAccount);
+
+                        // Retrieve service handle using credential since this is an authenticated call.
+                        Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
+
+                        try {
+                            ModelsClubRetrievalMiniForm clubRetrievalMiniForm = new ModelsClubRetrievalMiniForm();
+                            clubRetrievalMiniForm.setCollegeId(sharedPreferences.getString(AppConstants.COLLEGE_ID, "null"));
+                            Clubs.GetClubList gcl = apiServiceHandle.getClubList(clubRetrievalMiniForm);
+                            ModelsClubListResponse clubListResponse = gcl.execute();
+                            Log.e(LOG_TAG, "SUCCESS");
+                            Log.e(LOG_TAG, clubListResponse.toPrettyString());
+                            return clubListResponse;
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "Exception during API call", e);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(ModelsClubListResponse cList) {
+                        if (cList != null) {
+                            try {
+                                Log.e(LOG_TAG, cList.toPrettyString());
+                                modelsClubMiniForms=displayClubs(cList);
+                                Log.e(LOG_TAG,modelsClubMiniForms.toString());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Log.e(LOG_TAG, "No clubs were returned by the API.");
+                        }
+                    }
+                };
+
+        getClubsAndPopulate.execute((Void) null);
+    }
+
+
+    private List<ModelsClubMiniForm> displayClubs(ModelsClubListResponse... response) {
+        Log.e(LOG_TAG, response.toString());
+
+        if (response == null || response.length < 1) {
+            return null;
+        } else {
+            Log.d(LOG_TAG, "Displaying " + response.length + " colleges.");
+            List<ModelsClubListResponse> clubList = Arrays.asList(response);
+            return clubList.get(0).getList();
+        }
+    }
 
     private boolean isSignedIn() {
         if (!Strings.isNullOrEmpty(mEmailAccount)) {
@@ -138,6 +217,7 @@ public class CreatePostActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
 
+            CreatePostActivity.this.getGroups();
             if(position == 0)
             {
                 CreatePostActivity.FragmentPostEvent frag_post_event = new CreatePostActivity.FragmentPostEvent();
@@ -202,15 +282,37 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle("Group:");
-                    builder.setItems(items, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int item) {
-                            // Do something with the selection
-                            position = item;
-                            group_selected_text_post.setText(items[item]);
+                    if(CreatePostActivity.this.modelsClubMiniForms==null){
+                        builder.setItems(items, new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int item) {
+                                // Do something with the selection
+                                position = item;
+                                group_selected_text_post.setText(items[item]);
+
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                    else
+                    {
+                        String[] groupList=new String[CreatePostActivity.this.modelsClubMiniForms.size()];
+                        for(int i=0;i<modelsClubMiniForms.size();i++){
+                            groupList[i]=modelsClubMiniForms.get(i).getAbbreviation();
                         }
-                    });
-                    AlertDialog alert = builder.create();
-                    alert.show();
+                        builder.setItems(groupList, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int item) {
+                                // Do something with the selection
+                                position = item;
+                                group_selected_text_post.setText(CreatePostActivity.this.modelsClubMiniForms.get(position).getAbbreviation());
+                                pmf.setClubId(CreatePostActivity.this.modelsClubMiniForms.get(position).getClubId());
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+
 
 
                 }
