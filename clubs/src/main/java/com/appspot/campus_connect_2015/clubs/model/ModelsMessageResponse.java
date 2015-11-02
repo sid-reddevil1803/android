@@ -19,7 +19,7 @@
 package com.appspot.campus_connect_2015.clubs.model;
 
 /**
- * Model definition for ModelsCollegeFeed.
+ * Model definition for ModelsMessageResponse.
  *
  * <p> This is the Java data model class that specifies how to parse/serialize into the JSON that is
  * transmitted over HTTP when working with the clubs. For a detailed explanation see:
@@ -29,43 +29,58 @@ package com.appspot.campus_connect_2015.clubs.model;
  * @author Google, Inc.
  */
 @SuppressWarnings("javadoc")
-public final class ModelsCollegeFeed extends com.google.api.client.json.GenericJson {
+public final class ModelsMessageResponse extends com.google.api.client.json.GenericJson {
 
   /**
    * The value may be {@code null}.
    */
   @com.google.api.client.util.Key
-  private java.util.List<ModelsFeed> items;
+  private java.lang.String status;
 
-  static {
-    // hack to force ProGuard to consider ModelsFeed used, since otherwise it would be stripped out
-    // see http://code.google.com/p/google-api-java-client/issues/detail?id=528
-    com.google.api.client.util.Data.nullOf(ModelsFeed.class);
+  /**
+   * The value may be {@code null}.
+   */
+  @com.google.api.client.util.Key
+  private java.lang.String text;
+
+  /**
+   * @return value or {@code null} for none
+   */
+  public java.lang.String getStatus() {
+    return status;
+  }
+
+  /**
+   * @param status status or {@code null} for none
+   */
+  public ModelsMessageResponse setStatus(java.lang.String status) {
+    this.status = status;
+    return this;
   }
 
   /**
    * @return value or {@code null} for none
    */
-  public java.util.List<ModelsFeed> getItems() {
-    return items;
+  public java.lang.String getText() {
+    return text;
   }
 
   /**
-   * @param items items or {@code null} for none
+   * @param text text or {@code null} for none
    */
-  public ModelsCollegeFeed setItems(java.util.List<ModelsFeed> items) {
-    this.items = items;
+  public ModelsMessageResponse setText(java.lang.String text) {
+    this.text = text;
     return this;
   }
 
   @Override
-  public ModelsCollegeFeed set(String fieldName, Object value) {
-    return (ModelsCollegeFeed) super.set(fieldName, value);
+  public ModelsMessageResponse set(String fieldName, Object value) {
+    return (ModelsMessageResponse) super.set(fieldName, value);
   }
 
   @Override
-  public ModelsCollegeFeed clone() {
-    return (ModelsCollegeFeed) super.clone();
+  public ModelsMessageResponse clone() {
+    return (ModelsMessageResponse) super.clone();
   }
 
 }

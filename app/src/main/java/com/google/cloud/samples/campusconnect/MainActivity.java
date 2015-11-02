@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,9 +43,14 @@ import com.google.cloud.samples.campusconnect.LoginActivity.CollegeListAdapterAc
 import com.google.cloud.samples.campusconnect.LoginActivity.CollegeList_infoActivity;
 import com.google.common.base.Strings;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -395,21 +402,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private List<ModelsFeed> displayMyFeed(ModelsCollegeFeed... response) {
-        Log.e(LOG_TAG, "inside");
-
-        if (response == null) {
-            Log.e(LOG_TAG, "null");
-            return null;
-        } else {
-            Log.e(LOG_TAG, "Displaying " + response.length + " colleges.");
-            List<ModelsCollegeFeed> clubList = Arrays.asList(response);
-            //Log.e(LOG_TAG, clubList.toString());
-            Log.e(LOG_TAG, clubList.get(0).getItems().toString());
-            return clubList.get(0).getItems();
-        }
-    }
-
     class FragmentGroups extends Fragment {
 
         private static final String LOG_TAG = "FragmentGroups";
@@ -435,7 +427,11 @@ public class MainActivity extends AppCompatActivity {
             group_list.setLayoutManager(llm);
             group_list.setItemAnimator(new DefaultItemAnimator());
             if (gl == null) {
-                gl = new GroupListAdapterActivity(createList_gl(1));
+                try {
+                    gl = new GroupListAdapterActivity(createList_gl(1));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             group_list.setAdapter(gl);
             gl.notifyDataSetChanged();
@@ -537,9 +533,8 @@ public class MainActivity extends AppCompatActivity {
             if (tn == null) {
                 tn = new CollegeFeedAdapterActivity(
                         createList_cf(4));
-                topnews.setAdapter(tn);
             }
-
+            topnews.setAdapter(tn);
 
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -661,5 +656,138 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    public class GroupListAdapterActivity extends
+            RecyclerView.Adapter<GroupListAdapterActivity.GroupListViewHolder> {
+
+        private List<ModelsClubMiniForm> GroupList;
+        private List<String> itemsName;
+        int posi=0;
+        private  int[] GroupLogo = new int[] {
+                R.mipmap.cell_logo,
+                R.mipmap.football_logo,
+                R.mipmap.ie_logo,
+                R.mipmap.roto_logo
+        };
+        private  int[] followers_count = new int[] { 2,3,4,2};
+        private  int[] members_count = new int[] { 1,2,1,2};
+
+        private HashMap<String,String> followingMap=new HashMap<>();
+        private List<Boolean> following ;
+
+        public GroupListAdapterActivity(List<ModelsClubMiniForm> GroupList) throws IOException {
+            this.GroupList = GroupList;
+
+            File f=new File(getFilesDir(),"Follows.txt");
+            BufferedReader bfr=new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+            String temp;
+            while((temp=bfr.readLine())!=null){
+                String key=temp.substring(0,temp.indexOf('|'));
+                String value=temp.substring(temp.indexOf('|')+1,temp.length());
+                followingMap.put(key,value);
+            }
+            bfr.close();
+
+            f=new File(getFilesDir(),"Member.txt");
+            bfr=new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+            while((temp=bfr.readLine())!=null){
+                String key=temp.substring(0,temp.indexOf('|'));
+                String value=temp.substring(temp.indexOf('|')+1,temp.length());
+                followingMap.put(key,value);
+            }
+            bfr.close();
+
+            following = new ArrayList<Boolean>();
+            for(ModelsClubMiniForm modelsClubMiniForm:GroupList){
+
+                if(followingMap.containsKey(modelsClubMiniForm.getClubId())){
+                    following.add(Boolean.TRUE);
+                }else{
+                    following.add(Boolean.FALSE);
+                }
+            }
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return GroupList.size();
+        }
+
+        public void add(int location, String item){
+            itemsName.add(location, item);
+            notifyItemInserted(location);
+        }
+
+        @Override
+        public void onBindViewHolder(GroupListViewHolder group_listViewHolder, int i) {
+            //ModelsClubMiniForm ci = GroupList.get(i);
+            group_listViewHolder.group_title.setText(GroupList.get(i).getAbbreviation());
+            if(following.get(i)){
+                group_listViewHolder.following.setVisibility(View.VISIBLE);
+                group_listViewHolder.follow.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        public GroupListViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+            View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(
+                    R.layout.activity_card_layout_group_list, viewGroup, false);
+
+            return new GroupListViewHolder(itemView);
+        }
+
+
+        public class GroupListViewHolder extends RecyclerView.ViewHolder {
+
+            CardView group_list;
+            TextView follow,following, group_title;
+
+            public GroupListViewHolder(View v) {
+                super(v);
+
+                group_list = (CardView) v.findViewById(R.id.group_list_card);
+                group_title = (TextView) v.findViewById(R.id.tv_group_name);
+                follow = (TextView) v.findViewById(R.id.tv_follow);
+                following = (TextView) v.findViewById(R.id.tv_following);
+
+                group_list.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Intent intent_temp = new Intent(v.getContext(), GroupPageActivity.class);
+                        posi=getPosition();
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("G_NAME", (String) GroupList.get(posi).getName());
+                        bundle.putInt("G_ICON", GroupLogo[posi]);//have to change this
+                        bundle.putInt("F_COUNT", GroupList.get(posi).getFollowers().length());
+                        bundle.putInt("M_COUNT",GroupList.get(posi).getMembers().length());
+                        intent_temp.putExtras(bundle);
+
+                        v.getContext().startActivity(intent_temp);
+
+                    }
+                });
+
+                follow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        follow.setVisibility(View.GONE);
+                        following.setVisibility(View.VISIBLE);
+                    }
+                });
+                following.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        follow.setVisibility(View.VISIBLE);
+                        following.setVisibility(View.GONE);
+                    }
+                });
+
+            }
+
+        }
+    }
 
 }

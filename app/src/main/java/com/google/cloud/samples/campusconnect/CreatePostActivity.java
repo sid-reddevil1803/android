@@ -28,6 +28,7 @@ import com.appspot.campus_connect_2015.clubs.model.ModelsClubMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsClubRetrievalMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsCollegeFeed;
 import com.appspot.campus_connect_2015.clubs.model.ModelsGetInformation;
+import com.appspot.campus_connect_2015.clubs.model.ModelsMessageResponse;
 import com.appspot.campus_connect_2015.clubs.model.ModelsPostMiniForm;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.common.base.Strings;
@@ -185,7 +186,7 @@ public class CreatePostActivity extends AppCompatActivity {
                         try {
                             Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
                             Clubs.PostEntry postEntry = apiServiceHandle.postEntry(params[0]);
-                            Void res = postEntry.execute();
+                            ModelsMessageResponse res = postEntry.execute();
                             Log.e(LOG_TAG, "SUCCESS");
                             //Log.e(LOG_TAG,res.toString());
                         } catch (IOException e) {

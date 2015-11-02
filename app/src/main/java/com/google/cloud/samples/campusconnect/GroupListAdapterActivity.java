@@ -2,6 +2,7 @@ package com.google.cloud.samples.campusconnect;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,8 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.appspot.campus_connect_2015.clubs.model.ModelsClubListResponse;
 import com.appspot.campus_connect_2015.clubs.model.ModelsClubMiniForm;
+import com.appspot.campus_connect_2015.clubs.model.ModelsFeed;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,7 +32,6 @@ public class GroupListAdapterActivity extends
     private List<ModelsClubMiniForm> GroupList;
     private List<String> itemsName;
     int posi=0;
-    CharSequence GroupTitles[]={"E-Cell","Football Team","IE NITK","Rotaract Club"};
     private static int[] GroupLogo = new int[] {
             R.mipmap.cell_logo,
             R.mipmap.football_logo,
@@ -32,7 +41,10 @@ public class GroupListAdapterActivity extends
     private static int[] followers_count = new int[] { 2,3,4,2};
     private static int[] members_count = new int[] { 1,2,1,2};
 
-    public GroupListAdapterActivity(List<ModelsClubMiniForm> GroupList) {
+    private HashMap<String,String> followingMap=new HashMap<>();
+    private List<Boolean> following ;
+
+    public GroupListAdapterActivity(List<ModelsClubMiniForm> GroupList) throws IOException {
         this.GroupList = GroupList;
     }
 
@@ -48,8 +60,12 @@ public class GroupListAdapterActivity extends
 
     @Override
     public void onBindViewHolder(GroupListViewHolder group_listViewHolder, int i) {
-        ModelsClubMiniForm ci = GroupList.get(i);
-        group_listViewHolder.group_title.setText(GroupList.get(i).getName());
+        //ModelsClubMiniForm ci = GroupList.get(i);
+        group_listViewHolder.group_title.setText(GroupList.get(i).getAbbreviation());
+        if(following.get(i)){
+            group_listViewHolder.following.setVisibility(View.VISIBLE);
+            group_listViewHolder.follow.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -83,9 +99,9 @@ public class GroupListAdapterActivity extends
 
                     Bundle bundle = new Bundle();
                     bundle.putString("G_NAME", (String) GroupList.get(posi).getName());
-                    bundle.putInt("G_ICON", GroupLogo[posi]);
-                    bundle.putInt("F_COUNT", followers_count[posi]);
-                    bundle.putInt("M_COUNT",members_count[posi]);
+                    bundle.putInt("G_ICON", GroupLogo[posi]);//have to change this
+                    bundle.putInt("F_COUNT", GroupList.get(posi).getFollowers().length());
+                    bundle.putInt("M_COUNT",GroupList.get(posi).getMembers().length());
                     intent_temp.putExtras(bundle);
 
                     v.getContext().startActivity(intent_temp);

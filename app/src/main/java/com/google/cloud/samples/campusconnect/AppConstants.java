@@ -54,6 +54,10 @@ public class AppConstants {
 
     public static final String PERSON_PID = "person_pid";
 
+    public static final String FOLLOW_CLUB_COUNT = "follow_club_count";
+
+    public static final String MEMBER_CLUB_COUNT = "member_club_count";
+
     public static final JsonFactory JSON_FACTORY = new AndroidJsonFactory();
 
     public static final HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
