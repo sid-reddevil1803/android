@@ -35,6 +35,7 @@ import com.appspot.campus_connect_2015.clubs.model.ModelsClubRetrievalMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsCollegeFeed;
 import com.appspot.campus_connect_2015.clubs.model.ModelsColleges;
 import com.appspot.campus_connect_2015.clubs.model.ModelsFeed;
+import com.appspot.campus_connect_2015.clubs.model.ModelsFollowClubMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsGetCollege;
 import com.appspot.campus_connect_2015.clubs.model.ModelsGetInformation;
 import com.appspot.campus_connect_2015.clubs.model.ModelsPosts;
@@ -44,10 +45,17 @@ import com.google.cloud.samples.campusconnect.LoginActivity.CollegeList_infoActi
 import com.google.common.base.Strings;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -237,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         } else {
-                            Log.e(LOG_TAG, "No clubs were returned by the API.");
+                         //   Log.e(LOG_TAG, "No clubs were returned by the API.");
                         }
                     }
                 };
@@ -298,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         } else {
-                            Log.e(LOG_TAG, "No clubs were returned by the API.");
+                            //Log.e(LOG_TAG, "No clubs were returned by the API.");
                         }
                     }
                 };
@@ -359,12 +367,124 @@ public class MainActivity extends AppCompatActivity {
                                 e.printStackTrace();
                             }
                         } else {
-                            Log.e(LOG_TAG, "No clubs were returned by the API.");
+                            //Log.e(LOG_TAG, "No clubs were returned by the API.");
                         }
                     }
                 };
 
         getClubsAndPopulate.execute((Void) null);
+    }
+
+
+    public void followGroup(final ModelsClubMiniForm modelsClubMiniForm){
+        if (!isSignedIn()) {
+            Toast.makeText(MainActivity.this, "You must sign in for this action.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AsyncTask<Void, Void, Void> followGroup =
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... unused) {
+                        if (!isSignedIn()) {
+                            return null;
+                        }
+                        ;
+
+                        if (!AppConstants.checkGooglePlayServicesAvailable(MainActivity.this)) {
+                            return null;
+                        }
+
+                        // Create a Google credential since this is an authenticated request to the API.
+                        GoogleAccountCredential credential = GoogleAccountCredential.usingAudience(
+                                MainActivity.this, AppConstants.AUDIENCE);
+                        credential.setSelectedAccountName(mEmailAccount);
+
+                        // Retrieve service handle using credential since this is an authenticated call.
+                        Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
+                        //apiServiceHandle.followClub()
+                        try {
+                            ModelsFollowClubMiniForm modelsFollowClubMiniForm=new ModelsFollowClubMiniForm();
+                            modelsFollowClubMiniForm.setClubId(modelsClubMiniForm.getClubId());
+                            modelsFollowClubMiniForm.setFromPid(sharedPreferences.getString(AppConstants.PERSON_PID, null));
+                            Log.e(LOG_TAG+"as",modelsFollowClubMiniForm.toPrettyString());
+                            Clubs.FollowClub followClub = apiServiceHandle.followClub(modelsFollowClubMiniForm);
+                            Void followClubResponse = followClub.execute();
+                            Log.e(LOG_TAG, "SUCCESS followed");
+//                            Log.e(LOG_TAG, followClubResponse.toString());
+                            return followClubResponse;
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "Exception during API call", e);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void cList) {
+                        if (cList != null) {
+                        } else {
+                          //  Log.e(LOG_TAG, "No clubs were returned by the API.");
+                        }
+                    }
+                };
+
+        followGroup.execute((Void) null);
+    }
+
+    public void unFollowGroup(final ModelsClubMiniForm modelsClubMiniForm){
+        if (!isSignedIn()) {
+            Toast.makeText(MainActivity.this, "You must sign in for this action.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AsyncTask<Void, Void, Void> unFollowGroup =
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... unused) {
+                        if (!isSignedIn()) {
+                            return null;
+                        };
+
+                        if (!AppConstants.checkGooglePlayServicesAvailable(MainActivity.this)) {
+                            return null;
+                        }
+
+                        // Create a Google credential since this is an authenticated request to the API.
+                        GoogleAccountCredential credential = GoogleAccountCredential.usingAudience(
+                                MainActivity.this, AppConstants.AUDIENCE);
+                        credential.setSelectedAccountName(mEmailAccount);
+
+                        // Retrieve service handle using credential since this is an authenticated call.
+                        Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
+                        //apiServiceHandle.followClub()
+                        try {
+                            ModelsFollowClubMiniForm modelsFollowClubMiniForm=new ModelsFollowClubMiniForm();
+                            modelsFollowClubMiniForm.setClubId(modelsClubMiniForm.getClubId());
+                            modelsFollowClubMiniForm.setFromPid(sharedPreferences.getString(AppConstants.PERSON_PID,null));
+
+                            Clubs.UnfClub unfollowClub = apiServiceHandle.unfClub(modelsFollowClubMiniForm);
+                            Void unfollowClubResponse = unfollowClub.execute();
+                            Log.e(LOG_TAG, "SUCCESS unfollowed");
+                            //Log.e(LOG_TAG, unfollowClubResponse.toString());
+                            return unfollowClubResponse;
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "Exception during API call", e);
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void cList) {
+                        if (cList != null) {
+                        } else {
+                           // Log.e(LOG_TAG, "No clubs were returned by the API.");
+                        }
+                    }
+                };
+
+        unFollowGroup.execute((Void) null);
     }
 
     private boolean isSignedIn() {
@@ -673,7 +793,7 @@ public class MainActivity extends AppCompatActivity {
         private  int[] members_count = new int[] { 1,2,1,2};
 
         private HashMap<String,String> followingMap=new HashMap<>();
-        private List<Boolean> following ;
+        private List<Boolean> followingFlag ;
 
         public GroupListAdapterActivity(List<ModelsClubMiniForm> GroupList) throws IOException {
             this.GroupList = GroupList;
@@ -688,22 +808,13 @@ public class MainActivity extends AppCompatActivity {
             }
             bfr.close();
 
-            f=new File(getFilesDir(),"Member.txt");
-            bfr=new BufferedReader(new InputStreamReader(new FileInputStream(f)));
-            while((temp=bfr.readLine())!=null){
-                String key=temp.substring(0,temp.indexOf('|'));
-                String value=temp.substring(temp.indexOf('|')+1,temp.length());
-                followingMap.put(key,value);
-            }
-            bfr.close();
-
-            following = new ArrayList<Boolean>();
+            followingFlag = new ArrayList<Boolean>();
             for(ModelsClubMiniForm modelsClubMiniForm:GroupList){
 
                 if(followingMap.containsKey(modelsClubMiniForm.getClubId())){
-                    following.add(Boolean.TRUE);
+                    followingFlag.add(Boolean.TRUE);
                 }else{
-                    following.add(Boolean.FALSE);
+                    followingFlag.add(Boolean.FALSE);
                 }
             }
 
@@ -723,7 +834,7 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(GroupListViewHolder group_listViewHolder, int i) {
             //ModelsClubMiniForm ci = GroupList.get(i);
             group_listViewHolder.group_title.setText(GroupList.get(i).getAbbreviation());
-            if(following.get(i)){
+            if(followingFlag.get(i)){
                 group_listViewHolder.following.setVisibility(View.VISIBLE);
                 group_listViewHolder.follow.setVisibility(View.GONE);
             }
@@ -737,6 +848,92 @@ public class MainActivity extends AppCompatActivity {
             return new GroupListViewHolder(itemView);
         }
 
+        public void removeLineFromFile(File inFile, String lineToRemove) {
+
+            try {
+
+//                File inFile = new File(file);
+
+                if (!inFile.isFile()) {
+                    System.out.println("Parameter is not an existing file");
+                    return;
+                }
+
+                //Construct the new file that will later be renamed to the original filename.
+                File tempFile = new File(inFile.getAbsolutePath() + ".tmp");
+
+                BufferedReader br = new BufferedReader(new FileReader(inFile));
+                PrintWriter pw = new PrintWriter(new FileWriter(tempFile));
+
+                String line = null;
+
+                //Read from the original file and write to the new
+                //unless content matches data to be removed.
+                while ((line = br.readLine()) != null) {
+
+                    if (!line.trim().equals(lineToRemove)) {
+
+                        pw.println(line);
+                        pw.flush();
+                    }
+                }
+                pw.close();
+                br.close();
+
+                //Delete the original file
+                if (!inFile.delete()) {
+                    System.out.println("Could not delete file");
+                    return;
+                }
+
+                //Rename the new file to the filename the original file had.
+                if (!tempFile.renameTo(inFile))
+                    System.out.println("Could not rename file");
+
+            }
+            catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+            catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        public void writeLineToFile(File f,String line) {
+            Log.e(LOG_TAG+"345","here");
+            if(f==null){
+                Log.e("NULL","adf");
+            }
+            try {
+                FileOutputStream fos = openFileOutput(f.getName(), MODE_APPEND);
+                OutputStreamWriter outputStreamWriter= new OutputStreamWriter(fos);
+                outputStreamWriter.write(line);
+                outputStreamWriter.flush();
+                outputStreamWriter.close();
+                Log.e(LOG_TAG + "345", "made it here");
+            }catch (Exception e){
+                e.printStackTrace();
+                Log.e(LOG_TAG + "345", "didnt come here");
+                Log.e("EXcpe",e.getMessage());
+            }
+            Log.e(LOG_TAG+"345","here now");
+
+        }
+
+        public void printFileContents(File f){
+            try {
+                String line;
+                BufferedReader bfr=new BufferedReader(new InputStreamReader(new FileInputStream(f)));
+                while ((line = bfr.readLine()) != null) {
+                    Log.e(LOG_TAG+"123",line);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         public class GroupListViewHolder extends RecyclerView.ViewHolder {
 
@@ -761,8 +958,16 @@ public class MainActivity extends AppCompatActivity {
                         Bundle bundle = new Bundle();
                         bundle.putString("G_NAME", (String) GroupList.get(posi).getName());
                         bundle.putInt("G_ICON", GroupLogo[posi]);//have to change this
-                        bundle.putInt("F_COUNT", GroupList.get(posi).getFollowers().length());
-                        bundle.putInt("M_COUNT",GroupList.get(posi).getMembers().length());
+                        if(GroupList.get(posi).getFollowers()==null){
+                            bundle.putInt("F_COUNT", 0);
+                        }else {
+                            bundle.putInt("F_COUNT", GroupList.get(posi).getFollowers().length());
+                        }
+                        if(GroupList.get(posi).getMembers()==null){
+                            bundle.putInt("M_COUNT",0);
+                        }else{
+                            bundle.putInt("M_COUNT",GroupList.get(posi).getMembers().length());
+                        }
                         intent_temp.putExtras(bundle);
 
                         v.getContext().startActivity(intent_temp);
@@ -773,15 +978,31 @@ public class MainActivity extends AppCompatActivity {
                 follow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        posi = getPosition();
                         follow.setVisibility(View.GONE);
                         following.setVisibility(View.VISIBLE);
+                        followingMap.put(GroupList.get(posi).getClubId(), GroupList.get(posi).getName());
+                        followingFlag.set(posi, Boolean.TRUE);
+                        File f=new File(getFilesDir(),"Follows.txt");
+                        writeLineToFile(f,GroupList.get(posi).getClubId()+"|"+GroupList.get(posi).getName()+"\n");
+                        printFileContents(f);
+                        Log.e("check",GroupList.get(posi).getName()+posi);
+                        followGroup(GroupList.get(posi));
                     }
                 });
                 following.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        posi=getPosition();
                         follow.setVisibility(View.VISIBLE);
                         following.setVisibility(View.GONE);
+                        followingFlag.set(posi, Boolean.FALSE);
+                        followingMap.remove(GroupList.get(posi).getClubId());
+                        File f = new File(getFilesDir(), "Follows.txt");
+                        removeLineFromFile(f, GroupList.get(posi).getClubId() + "|" + GroupList.get(posi).getName());
+                        printFileContents(f);
+                        Log.e("check", GroupList.get(posi).getName() + posi);
+                        unFollowGroup(GroupList.get(posi));
                     }
                 });
 

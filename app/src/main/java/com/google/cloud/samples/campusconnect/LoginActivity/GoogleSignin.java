@@ -377,13 +377,20 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                                 StringBuilder sb=new StringBuilder();
 
                                 for(int i=0;i<mpList.getFollows().size();i++){
-                                    sb.append(mpList.getFollows().get(i) + "|" + mpList.getFollowsNames().get(i));
+                                    sb.append(mpList.getFollows().get(i) + "|" + mpList.getFollowsNames().get(i)+"\n");
+                                }
+
+                                if(mpList.getClubNames()!=null){
+                                    for (int i = 0; i < mpList.getClubNames().size(); i++) {
+                                        sb.append(mpList.getClubNames().get(i).getClubId() + "|" + mpList.getClubNames().get(i).getName()+"\n");
+                                    }
                                 }
                                 try {
                                     bfr.write(sb.toString());
                                     bfr.close();
                                     fos.close();
-                                    bfr=null;
+                                    Log.e("file","written succes");
+                                    //bfr=null;
                                     //sb.delete(0,sb.toString().length());
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -391,32 +398,32 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                             }
 
                             if(mpList.getClubNames()!=null) {
-                                if(!members.exists()){
-                                    try {
-                                        members.createNewFile();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                try {
-                                    fos=new FileOutputStream(members);
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                                bfr=new BufferedWriter(new OutputStreamWriter(fos));
-                                StringBuilder sb=new StringBuilder();
+//                                if(!members.exists()){
+//                                    try {
+//                                        members.createNewFile();
+//                                    } catch (IOException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                try {
+//                                    fos=new FileOutputStream(members);
+//                                } catch (FileNotFoundException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                bfr=new BufferedWriter(new OutputStreamWriter(fos));
+//                                StringBuilder sb=new StringBuilder();
+//
+//                                for (int i = 0; i < mpList.getClubNames().size(); i++) {
+//                                    sb.append(mpList.getClubNames().get(i).getClubId() + "|" + mpList.getClubNames().get(i).getName());
+//                                }
 
-                                for (int i = 0; i < mpList.getClubNames().size(); i++) {
-                                    sb.append(mpList.getClubNames().get(i).getClubId() + "|" + mpList.getClubNames().get(i).getName());
-                                }
-
-                                try {
-                                    bfr.write(sb.toString());
-                                    bfr.close();
-                                    fos.close();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+//                                try {
+//                                    bfr.write(sb.toString());
+//                                    bfr.close();
+//                                    fos.close();
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
                             }
                             edit.commit();
                             Intent intent_temp = new Intent(v.getContext(), MainActivity.class);

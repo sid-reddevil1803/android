@@ -27,6 +27,7 @@ import com.appspot.campus_connect_2015.clubs.model.ModelsClubListResponse;
 import com.appspot.campus_connect_2015.clubs.model.ModelsClubMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsClubRetrievalMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsCollegeFeed;
+import com.appspot.campus_connect_2015.clubs.model.ModelsEventMiniForm;
 import com.appspot.campus_connect_2015.clubs.model.ModelsGetInformation;
 import com.appspot.campus_connect_2015.clubs.model.ModelsMessageResponse;
 import com.appspot.campus_connect_2015.clubs.model.ModelsPostMiniForm;
@@ -34,7 +35,12 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.common.base.Strings;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -162,12 +168,12 @@ public class CreatePostActivity extends AppCompatActivity {
             return;
         }
 
-        AsyncTask<ModelsPostMiniForm, Void, Void> createFeed =
-                new AsyncTask<ModelsPostMiniForm, Void, Void>() {
+        AsyncTask<ModelsPostMiniForm, Void, ModelsMessageResponse> createFeed =
+                new AsyncTask<ModelsPostMiniForm, Void, ModelsMessageResponse>() {
 
 
                     @Override
-                    protected Void doInBackground(ModelsPostMiniForm... params) {
+                    protected ModelsMessageResponse doInBackground(ModelsPostMiniForm... params) {
                         if (!isSignedIn()) {
                             return null;
                         }
@@ -186,9 +192,59 @@ public class CreatePostActivity extends AppCompatActivity {
                         try {
                             Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
                             Clubs.PostEntry postEntry = apiServiceHandle.postEntry(params[0]);
+                            //Log.e(LOG_TAG+"123",params[0].toPrettyString());
                             ModelsMessageResponse res = postEntry.execute();
                             Log.e(LOG_TAG, "SUCCESS");
-                            //Log.e(LOG_TAG,res.toString());
+                            return res;
+//                            Log.e(LOG_TAG, res.toString());
+                        } catch (IOException e) {
+                            Log.e(LOG_TAG, "Exception during API call", e);
+                        }
+                        return null;
+
+                    }
+
+
+                };
+        createFeed.execute((ModelsPostMiniForm) postMiniForm);
+    }
+
+    public void createEvent(ModelsEventMiniForm eventMiniForm){
+        if (!isSignedIn()) {
+            Toast.makeText(CreatePostActivity.this, "You must sign in for this action.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        AsyncTask<ModelsEventMiniForm, Void, Void> createEvent =
+                new AsyncTask<ModelsEventMiniForm, Void, Void>() {
+
+
+                    @Override
+                    protected Void doInBackground(ModelsEventMiniForm... params) {
+                        if (!isSignedIn()) {
+                            return null;
+                        }
+                        ;
+
+                        if (!AppConstants.checkGooglePlayServicesAvailable(CreatePostActivity.this)) {
+                            return null;
+                        }
+
+                        // Create a Google credential since this is an authenticated request to the API.
+                        GoogleAccountCredential credential = GoogleAccountCredential.usingAudience(
+                                CreatePostActivity.this, AppConstants.AUDIENCE);
+                        credential.setSelectedAccountName(mEmailAccount);
+
+                        // Retrieve service handle using credential since this is an authenticated call.
+                        try {
+                            Clubs apiServiceHandle = AppConstants.getApiServiceHandle(credential);
+                            Clubs.EventEntry eventEntry = apiServiceHandle.eventEntry(params[0]);
+                            //Log.e(LOG_TAG+"123",params[0].toPrettyString());
+                            ModelsMessageResponse res = eventEntry.execute();
+                            Log.e(LOG_TAG, "SUCCESS");
+                            //Toast.makeText(CreatePostActivity.this, "SUCCESS", Toast.LENGTH_LONG).show();
+
+                            Log.e(LOG_TAG, res.toString());
                         } catch (IOException e) {
                             Log.e(LOG_TAG, "Exception during API call", e);
                         }
@@ -197,7 +253,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
 
                 };
-        createFeed.execute((ModelsPostMiniForm) postMiniForm);
+
+        createEvent.execute((ModelsEventMiniForm) eventMiniForm);
     }
 
     public class ViewPagerAdapter_CreatePost extends FragmentPagerAdapter {
@@ -254,12 +311,10 @@ public class CreatePostActivity extends AppCompatActivity {
         RelativeLayout group_name_post;
         TextView group_selected_text_post;
         EditText et_title,et_description,et_date,et_time,et_venue,et_tags;
-        ModelsPostMiniForm pmf;
+        ModelsPostMiniForm pmf = new ModelsPostMiniForm();
         int position;
-        final String[] items = {
-                "E-Cell", "IE NITK", "Football Team","Rotaract Club"
-        };
-        private  static final  String LOG_TAG="GetProfileDetails";
+
+        private  static final  String LOG_TAG="CreatePostActivity";
 
 
         @Override
@@ -284,17 +339,18 @@ public class CreatePostActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle("Group:");
                     if(CreatePostActivity.this.modelsClubMiniForms==null){
-                        builder.setItems(items, new DialogInterface.OnClickListener() {
-
-                            public void onClick(DialogInterface dialog, int item) {
-                                // Do something with the selection
-                                position = item;
-                                group_selected_text_post.setText(items[item]);
-
-                            }
-                        });
-                        AlertDialog alert = builder.create();
-                        alert.show();
+//                        builder.setItems(items, new DialogInterface.OnClickListener() {
+//
+//                            public void onClick(DialogInterface dialog, int item) {
+//                                // Do something with the selection
+//                                //position = item;
+//                                //group_selected_text_post.setText(items[item]);
+//
+//                            }
+//                        });
+//                        AlertDialog alert = builder.create();
+//                        alert.show();
+                        group_selected_text_post.setText("Loading Groups");
                     }
                     else
                     {
@@ -308,6 +364,7 @@ public class CreatePostActivity extends AppCompatActivity {
                                 position = item;
                                 group_selected_text_post.setText(CreatePostActivity.this.modelsClubMiniForms.get(position).getAbbreviation());
                                 pmf.setClubId(CreatePostActivity.this.modelsClubMiniForms.get(position).getClubId());
+                                Log.e(LOG_TAG+"CLUB",pmf.getClubId()+" "+group_selected_text_post);
                             }
                         });
                         AlertDialog alert = builder.create();
@@ -322,38 +379,41 @@ public class CreatePostActivity extends AppCompatActivity {
             CreatePostActivity.post.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    pmf = new ModelsPostMiniForm();
 
                     String test = et_title.getText().toString();
                     //CreatePostActivity.post.setText(test);
                     SharedPreferences
                             sharedPreferences=v.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
 
+
+                    Date cDate = new Date();
+                    String date = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+                    String time = new SimpleDateFormat("hh:mm:ss").format(cDate);
+
+
+                    Log.e(LOG_TAG, date);
+                    Log.e(LOG_TAG, time);
+
                     Log.e(LOG_TAG, et_title.getText().toString());
                     Log.e(LOG_TAG, et_description.getText().toString());
+
                     Log.e(LOG_TAG, et_date.getText().toString());
                     Log.e(LOG_TAG, et_time.getText().toString());
                     Log.e(LOG_TAG, et_tags.getText().toString());
-                    Log.e(LOG_TAG, items[position]);
-                    //Log.e(LOG_TAG, sharedPreferences.getString(AppConstants.));
                     Log.e(LOG_TAG, sharedPreferences.getString(AppConstants.COLLEGE_ID, null));
                     Log.e(LOG_TAG, sharedPreferences.getString(AppConstants.PERSON_PID, null));
 
-                    //Log.e(LOG_TAG, et_tags.getText().toString());
+                    Log.e(LOG_TAG, pmf.getClubId());
 
 
-                    pmf.setDate(et_date.getText().toString());
-                    pmf.setTime(et_time.getText().toString());
+                    pmf.setDate(date);
+                    pmf.setTime(time);
                     pmf.setTitle(et_title.getText().toString());
                     pmf.setDescription(et_description.getText().toString());
-                    pmf.setClubId(sharedPreferences.getString(AppConstants.COLLEGE_ID, null));
+
                     pmf.setFromPid(sharedPreferences.getString(AppConstants.PERSON_PID, null));
-                    String clubID = "5109799364591616"; // Remove this
-                    pmf.setClubId(clubID);
 
                     CreatePostActivity.this.createPost(pmf);
-
-
                 }
             });
 
@@ -370,7 +430,10 @@ public class CreatePostActivity extends AppCompatActivity {
 
         RelativeLayout group_name_post;
         TextView group_selected_text_post;
-        EditText et_title;
+        ModelsEventMiniForm eventMiniForm=new ModelsEventMiniForm();
+        EditText et_title,et_post_description;
+        int position;
+
         String test;
         @Override
         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -378,6 +441,7 @@ public class CreatePostActivity extends AppCompatActivity {
             group_name_post = (RelativeLayout) v.findViewById(R.id.group_select_when_posting);
             group_selected_text_post = (TextView) v.findViewById(R.id.tv_group_name_selected_when_posting);
             et_title = (EditText) v.findViewById(R.id.et_post_title);
+            et_post_description = (EditText) v.findViewById(R.id.et_post_description);
 
 
 
@@ -385,39 +449,102 @@ public class CreatePostActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
-                    final CharSequence[] items = {
-                            "E-Cell", "IE NITK", "Football Team","Rotaract Club"
-                    };
+
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle("Group:");
-                    builder.setItems(items, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int item) {
-                            // Do something with the selection
-                            group_selected_text_post.setText(items[item]);
+                    if(CreatePostActivity.this.modelsClubMiniForms==null){
+//                        builder.setItems(items, new DialogInterface.OnClickListener() {
+//
+//                            public void onClick(DialogInterface dialog, int item) {
+//                                // Do something with the selection
+//                                //position = item;
+//                                //group_selected_text_post.setText(items[item]);
+//
+//                            }
+//                        });
+//                        AlertDialog alert = builder.create();
+//                        alert.show();
+                        group_selected_text_post.setText("Loading Groups");
+                    }
+                    else
+                    {
+                        String[] groupList=new String[CreatePostActivity.this.modelsClubMiniForms.size()];
+                        for(int i=0;i<modelsClubMiniForms.size();i++){
+                            groupList[i]=modelsClubMiniForms.get(i).getAbbreviation();
                         }
-                    });
-                    AlertDialog alert = builder.create();
-                    alert.show();
+                        builder.setItems(groupList, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int item) {
+                                // Do something with the selection
+                                position = item;
+                                group_selected_text_post.setText(CreatePostActivity.this.modelsClubMiniForms.get(position).getAbbreviation());
+                                eventMiniForm.setClubId(CreatePostActivity.this.modelsClubMiniForms.get(position).getClubId());
+                                Log.e(LOG_TAG+"CLUB",eventMiniForm.getClubId()+" "+group_selected_text_post);
+                            }
+                        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+
 
 
                 }
             });
+
 
             CreatePostActivity.post.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
-                    test = et_title.getText().toString();
-                    CreatePostActivity.post.setText(test);
+                    String test = et_title.getText().toString();
+                    //CreatePostActivity.post.setText(test);
+                    SharedPreferences
+                            sharedPreferences=v.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
 
 
+                    Date cDate = new Date();
+                    String date = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
+                    String time = new SimpleDateFormat("hh:mm:ss").format(cDate);
+
+
+                    Log.e(LOG_TAG, date);
+                    Log.e(LOG_TAG, time);
+
+                    Log.e(LOG_TAG, et_title.getText().toString());
+                    Log.e(LOG_TAG, et_post_description.getText().toString());
+
+                    Log.e(LOG_TAG, sharedPreferences.getString(AppConstants.COLLEGE_ID, null));
+                    Log.e(LOG_TAG, sharedPreferences.getString(AppConstants.PERSON_PID, null));
+
+                    Log.e(LOG_TAG, eventMiniForm.getClubId());
+
+
+                    //eventMiniForm.setClubId();
+                    //eventMiniForm.setCompleted();
+                    //eventMiniForm.setAttendees();
+                    eventMiniForm.setDate(date);//timestamp
+                    eventMiniForm.setTime(time);//timestamp
+                    eventMiniForm.setDescription(et_post_description.getText().toString());
+                    //eventMiniForm.setStartDate();
+                    //eventMiniForm.setStartTime();
+                    //eventMiniForm.setEndDate();
+                    //eventMiniForm.setEndTime();
+                    eventMiniForm.setEventCreator(sharedPreferences.getString(AppConstants.PERSON_PID,null));
+                    //eventMiniForm.setTags();
+                    eventMiniForm.setIsAlumni(sharedPreferences.getString(AppConstants.ALUMNI,null));
+                    //eventMiniForm.setTitle();
+                    //eventMiniForm.setVenue();
+                    //eventMiniForm.set
+
+
+                    CreatePostActivity.this.createEvent(eventMiniForm);
                 }
             });
+
+
+
+
             return v;
         }
     }
-
-
-
 }
