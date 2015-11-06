@@ -1,8 +1,13 @@
 package com.google.cloud.samples.campusconnect;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,12 +17,14 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +41,8 @@ import com.appspot.campus_connect_2015.clubs.model.ModelsPostMiniForm;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.common.base.Strings;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -310,9 +319,14 @@ public class CreatePostActivity extends AppCompatActivity {
     public class FragmentPostNews extends Fragment {
         RelativeLayout group_name_post;
         TextView group_selected_text_post;
+        ImageView iv_upload;
         EditText et_title,et_description,et_date,et_time,et_venue,et_tags;
         ModelsPostMiniForm pmf = new ModelsPostMiniForm();
         int position;
+        String encodedImageStr="";
+
+        private final int GALLERY_ACTIVITY_CODE=200;
+        private final int RESULT_CROP = 400;
 
         private  static final  String LOG_TAG="CreatePostActivity";
 
@@ -329,6 +343,7 @@ public class CreatePostActivity extends AppCompatActivity {
             et_date = (EditText) v.findViewById(R.id.et_date);
             et_time = (EditText) v.findViewById(R.id.et_time);
             et_tags = (EditText) v.findViewById(R.id.et_tags);
+            iv_upload = (ImageView) v.findViewById(R.id.iv_upload);
 
             group_name_post.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -339,17 +354,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle("Group:");
                     if(CreatePostActivity.this.modelsClubMiniForms==null){
-//                        builder.setItems(items, new DialogInterface.OnClickListener() {
-//
-//                            public void onClick(DialogInterface dialog, int item) {
-//                                // Do something with the selection
-//                                //position = item;
-//                                //group_selected_text_post.setText(items[item]);
-//
-//                            }
-//                        });
-//                        AlertDialog alert = builder.create();
-//                        alert.show();
                         group_selected_text_post.setText("Loading Groups");
                     }
                     else
@@ -375,6 +379,17 @@ public class CreatePostActivity extends AppCompatActivity {
 
                 }
             });
+
+            iv_upload.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    //Start Activity To Select Image From Gallery
+                    Intent gallery_Intent = new Intent(getApplicationContext(), GalleryUtil.class);
+                    startActivityForResult(gallery_Intent, GALLERY_ACTIVITY_CODE);
+                    //break;
+                }
+            });
+
+
 
             CreatePostActivity.post.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -410,7 +425,7 @@ public class CreatePostActivity extends AppCompatActivity {
                     pmf.setTime(time);
                     pmf.setTitle(et_title.getText().toString());
                     pmf.setDescription(et_description.getText().toString());
-
+                    pmf.setPhoto(encodedImageStr);
                     pmf.setFromPid(sharedPreferences.getString(AppConstants.PERSON_PID, null));
 
                     CreatePostActivity.this.createPost(pmf);
@@ -424,6 +439,67 @@ public class CreatePostActivity extends AppCompatActivity {
         }
 
 
+
+        private void performCrop(String picUri) {
+            try {
+                //Start Crop Activity
+
+                Intent cropIntent = new Intent("com.android.camera.action.CROP");
+                // indicate image type and Uri
+                File f = new File(picUri);
+                Uri contentUri = Uri.fromFile(f);
+
+                cropIntent.setDataAndType(contentUri, "image/*");
+                // set crop properties
+                cropIntent.putExtra("crop", "true");
+                // indicate aspect of desired crop
+                cropIntent.putExtra("aspectX", 1);
+                cropIntent.putExtra("aspectY", 1);
+                // indicate output X and Y
+                cropIntent.putExtra("outputX", 280);
+                cropIntent.putExtra("outputY", 280);
+
+                // retrieve data on return
+                cropIntent.putExtra("return-data", true);
+                // start the activity - we handle returning in onActivityResult
+                startActivityForResult(cropIntent, RESULT_CROP);
+            }
+            // respond to users whose devices do not support the crop action
+            catch (ActivityNotFoundException anfe) {
+                // display an error message
+                String errorMessage = "your device doesn't support the crop action!";
+                Toast toast = Toast.makeText(CreatePostActivity.this, errorMessage, Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if (requestCode == GALLERY_ACTIVITY_CODE) {
+                if(resultCode == Activity.RESULT_OK){
+                    String picturePath = data.getStringExtra("picturePath");
+                    //perform Crop on the Image Selected from Gallery
+                    performCrop(picturePath);
+                }
+            }
+
+            if (requestCode == RESULT_CROP ) {
+                if(resultCode == Activity.RESULT_OK){
+                    Bundle extras = data.getExtras();
+                    Bitmap selectedBitmap = extras.getParcelable("data");
+                    // Set The Bitmap Data To ImageView
+                    iv_upload.setImageBitmap(selectedBitmap);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    selectedBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                    //Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+                    byte[] b = baos.toByteArray();
+                    encodedImageStr = Base64.encodeToString(b, Base64.DEFAULT);
+                    iv_upload.setScaleType(ImageView.ScaleType.CENTER);
+                }
+            }
+        }
     }
 
     public class FragmentPostEvent extends Fragment {
@@ -454,17 +530,6 @@ public class CreatePostActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                     builder.setTitle("Group:");
                     if(CreatePostActivity.this.modelsClubMiniForms==null){
-//                        builder.setItems(items, new DialogInterface.OnClickListener() {
-//
-//                            public void onClick(DialogInterface dialog, int item) {
-//                                // Do something with the selection
-//                                //position = item;
-//                                //group_selected_text_post.setText(items[item]);
-//
-//                            }
-//                        });
-//                        AlertDialog alert = builder.create();
-//                        alert.show();
                         group_selected_text_post.setText("Loading Groups");
                     }
                     else
@@ -475,7 +540,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         }
                         builder.setItems(groupList, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int item) {
-                                // Do something with the selection
                                 position = item;
                                 group_selected_text_post.setText(CreatePostActivity.this.modelsClubMiniForms.get(position).getAbbreviation());
                                 eventMiniForm.setClubId(CreatePostActivity.this.modelsClubMiniForms.get(position).getClubId());
@@ -485,9 +549,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         AlertDialog alert = builder.create();
                         alert.show();
                     }
-
-
-
                 }
             });
 
@@ -497,7 +558,6 @@ public class CreatePostActivity extends AppCompatActivity {
                 public void onClick(View v) {
 
                     String test = et_title.getText().toString();
-                    //CreatePostActivity.post.setText(test);
                     SharedPreferences
                             sharedPreferences=v.getContext().getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
 

@@ -1,9 +1,12 @@
 package com.google.cloud.samples.campusconnect;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +17,9 @@ import android.widget.TextView;
 import com.appspot.campus_connect_2015.clubs.model.ModelsCollegeFeed;
 import com.appspot.campus_connect_2015.clubs.model.ModelsFeed;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,7 +76,22 @@ public class CollegeFeedAdapterActivity extends
        college_feedViewHolder.event_title.setText(cf.getTitle());
        college_feedViewHolder.group_name.setText(cf.getClubId());
        college_feedViewHolder.timestamp.setText(cf.getStartTime());
-       college_feedViewHolder.event_photo.setImageResource(event_photos[i]);
+
+        String encodedImage = cf.getPhoto();
+        if(encodedImage != null && !encodedImage.isEmpty()) {
+            if (encodedImage.equals("None")) {
+                college_feedViewHolder.event_photo.setImageResource(R.mipmap.spark_session);
+            } else {
+                byte[] decodedString = Base64.decode(encodedImage, Base64.DEFAULT);
+                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                //college_feedViewHolder.event_photo.setImageResource(event_photos[i]);
+                college_feedViewHolder.event_photo.setImageBitmap(decodedByte);
+            }
+        }
+        else
+        {
+            college_feedViewHolder.event_photo.setImageResource(R.mipmap.spark_session);
+        }
 
         //news
         if(cf.getAttendees()==null||cf.getAttendees().size()==0)
@@ -84,14 +105,28 @@ public class CollegeFeedAdapterActivity extends
         }
 
         else {
-           college_feedViewHolder.day.setText(cf.getStartDate());
-           college_feedViewHolder.date_month.setText(Date_Month[i]);
-           college_feedViewHolder.time.setText(Time_[i]);
+            SimpleDateFormat inFormat = new SimpleDateFormat("dd-MM-yyyy");
+            Date date = null;
+            try {
+                date = inFormat.parse(cf.getStartDate());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            SimpleDateFormat outFormat = new SimpleDateFormat("EEEE");
+            String goal = outFormat.format(date);
+            Log.e("day", goal);
+            Log.e("entry",cf.getStartDate());
+            SimpleDateFormat monthFormat = new SimpleDateFormat("MMM");
+            String month = monthFormat.format(date);
+            Log.e("month",month);
+            college_feedViewHolder.day.setText(goal);
+          // college_feedViewHolder.date_month.setText(Date_Month[i]);
+           //college_feedViewHolder.time.setText(Time_[i]);
             college_feedViewHolder.news_icon.setVisibility(View.GONE);
             college_feedViewHolder.going.setImageResource(R.mipmap.going);
         }
 
-       college_feedViewHolder.group_icon.setImageResource(GroupLogo[i]);
+       college_feedViewHolder.group_icon.setImageResource(R.mipmap.ie_logo);
 
     }
 
@@ -140,8 +175,8 @@ public class CollegeFeedAdapterActivity extends
                     bundle.putString("G_NAME",CollegeFeedList.get(posi).getClubId());
                     bundle.putString("V_NAME",CollegeFeedList.get(posi).getVenue());
                     bundle.putString("E_DESCRIPTION",CollegeFeedList.get(posi).getDescription());
-                    bundle.putInt("E_PHOTO", event_photos[posi]);
-                    bundle.putInt("G_PHOTO",GroupLogo[posi]);
+             //       bundle.putInt("E_PHOTO", event_photos[posi]);
+               //     bundle.putInt("G_PHOTO",GroupLogo[posi]);
                     bundle.putInt("FLAG_NEWS_TOP",flag_news);
                     bundle.putInt("POSITION_CF",posi);
                     intent_temp.putExtras(bundle);
