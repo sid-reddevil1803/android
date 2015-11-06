@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -39,15 +38,11 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.cloud.samples.campusconnect.AppConstants;
 import com.google.cloud.samples.campusconnect.MainActivity;
 import com.google.cloud.samples.campusconnect.R;
+import com.google.cloud.samples.campusconnect.RegistrationIntentService;
 import com.google.common.base.Strings;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 
 public class GoogleSignin extends Activity implements View.OnClickListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -83,10 +78,16 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
     private String mEmailAccount = "";
     SharedPreferences sharedpreferences;
 
-    File follows;
-    File members;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences sp = getSharedPreferences(AppConstants.SHARED_PREFS, Context.MODE_PRIVATE);
+        boolean isGcmGenerated = sp.getBoolean("gcm_generated", false);
+        if (isGcmGenerated == false) {
+            Intent intentx = new Intent(GoogleSignin.this, RegistrationIntentService.class);
+            startService(intentx);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_signin);
 
@@ -101,8 +102,6 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
         txtEmail = (TextView) findViewById(R.id.txtEmail);
         llProfileLayout = (LinearLayout) findViewById(R.id.llProfile);
 
-        members = new File(this.getFilesDir(),"Members.txt");
-        follows = new File(this.getFilesDir(),"Follows.txt");
         // Button click listeners
         btnSignIn.setOnClickListener(this);
         btnSignOut.setOnClickListener(this);
@@ -115,7 +114,9 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                 addOnConnectionFailedListener(this).
                 addApi(Plus.API, Plus.PlusOptions.builder().build()).
                 addScope(Plus.SCOPE_PLUS_LOGIN).build();
+
     }
+
 
     protected void onStart() {
         super.onStart();
@@ -244,7 +245,6 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                 SharedPreferences.Editor editor = sharedpreferences.edit();
                 editor.putString(AppConstants.EMAIL_KEY, email);
                 editor.putString(AppConstants.PERSON_NAME,personName);
-
                 editor.commit();
 
 
@@ -352,85 +352,11 @@ public class GoogleSignin extends Activity implements View.OnClickListener,
                             }
                             edit.putString(AppConstants.PHONE,mpList.getPhone());
                             edit.putString(AppConstants.COLLEGE_ID,mpList.getCollegeId());
-
-                            edit.putString(AppConstants.PERSON_PID, mpList.getPid());
-
-
-                            BufferedWriter bfr=null;
-                            FileOutputStream fos=null;
-                            if(mpList.getFollows()!=null){
-                                if(!follows.exists()) {
-                                    try {
-                                        follows.createNewFile();
-                                        Log.e(LOG_TAG,Boolean.valueOf(follows.exists()).toString());
-
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                try {
-                                    fos=new FileOutputStream(follows);
-                                } catch (FileNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                                bfr=new BufferedWriter(new OutputStreamWriter(fos));
-                                StringBuilder sb=new StringBuilder();
-
-                                for(int i=0;i<mpList.getFollows().size();i++){
-                                    sb.append(mpList.getFollows().get(i) + "|" + mpList.getFollowsNames().get(i)+"\n");
-                                }
-
-                                if(mpList.getClubNames()!=null){
-                                    for (int i = 0; i < mpList.getClubNames().size(); i++) {
-                                        sb.append(mpList.getClubNames().get(i).getClubId() + "|" + mpList.getClubNames().get(i).getName()+"\n");
-                                    }
-                                }
-                                try {
-                                    bfr.write(sb.toString());
-                                    bfr.close();
-                                    fos.close();
-                                    Log.e("file","written succes");
-                                    //bfr=null;
-                                    //sb.delete(0,sb.toString().length());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            if(mpList.getClubNames()!=null) {
-//                                if(!members.exists()){
-//                                    try {
-//                                        members.createNewFile();
-//                                    } catch (IOException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                try {
-//                                    fos=new FileOutputStream(members);
-//                                } catch (FileNotFoundException e) {
-//                                    e.printStackTrace();
-//                                }
-//                                bfr=new BufferedWriter(new OutputStreamWriter(fos));
-//                                StringBuilder sb=new StringBuilder();
-//
-//                                for (int i = 0; i < mpList.getClubNames().size(); i++) {
-//                                    sb.append(mpList.getClubNames().get(i).getClubId() + "|" + mpList.getClubNames().get(i).getName());
-//                                }
-
-//                                try {
-//                                    bfr.write(sb.toString());
-//                                    bfr.close();
-//                                    fos.close();
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-                            }
+                            edit.putString(AppConstants.PERSON_PID,mpList.getPid());
                             edit.commit();
                             Intent intent_temp = new Intent(v.getContext(), MainActivity.class);
                             startActivity(intent_temp);
-
-                            }
-                        else {
+                        } else {
                             Intent intent_temp = new Intent(v.getContext(), SelectCollegeActivity.class);
                             startActivity(intent_temp);
                         }

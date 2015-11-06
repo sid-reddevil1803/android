@@ -82,6 +82,7 @@ public class GetProfileDetailsActivity extends AppCompatActivity implements View
         pmf.setPhone(phoneNo);
         pmf.setBatch(str_batch);
         pmf.setBranch(str_branch);
+        pmf.setGcmId(sharedPreferences.getString("gcm_token",null));
         SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putString(AppConstants.BATCH, pmf.getBatch());
         edit.putString(AppConstants.BRANCH, pmf.getBranch());
